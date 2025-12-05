@@ -1,4 +1,5 @@
 -- USAGE : https://github.com/voidsaken-script/Voidsaken-Loader/blob/main/LICENSE (To put it simply, you are not allowed to skid)
+-- warning: some dumb ass shit called dp hub pasted this script 1:1 and just changed the title. it has an ip logger and its hella skidded so dont use it thanks
 
 local ScreenGui = Instance.new("ScreenGui")
 local main = Instance.new("Frame")
