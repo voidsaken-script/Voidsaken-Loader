@@ -49,7 +49,7 @@ discordlink.BorderSizePixel = 0
 discordlink.Position = UDim2.new(0, 15, 1, -50)
 discordlink.Size = UDim2.new(1, -30, 0, 40)
 discordlink.Font = Enum.Font.ArialBold
-discordlink.Text = "https://discord.gg/BJ5y9ChyqN"
+discordlink.Text = "discord.gg/fdBZygQthm"
 discordlink.TextColor3 = Color3.fromRGB(71, 160, 255)
 discordlink.TextSize = 17.000
 
