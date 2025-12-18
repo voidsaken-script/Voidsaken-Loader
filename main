@@ -1515,7 +1515,7 @@ InfJumpGroup:AddToggle("Invis", {
     Text = "Invisibility",
     Default = false,
     Callback = function(Value)
-        if game.PlaceId ~= 18687417158 then
+        if game.PlaceId ~= 18687417158 and game.PlaceId ~= 83645629621104 then
             if not Value then return end
             return Notify("Please use in real forsaken", "Invisibility doesnt work in games that are not the real forsaken", 8)
         end
