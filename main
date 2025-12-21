@@ -40,7 +40,7 @@ for i, v in pairs({"xeno", "solara", "celery", "nezur", "luna"}) do
     if string.find(identifyexecutor():lower(), v) then
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Executor Waning",
-            Description = "Unfortunately, " .. identifyexecutor() .. " won't be able to run many of the features in the script due to its power. Join the discord to view a list of executors",
+            Text = "Unfortunately, " .. identifyexecutor() .. " won't be able to run many of the features in the script due to its power. Join the discord to view a list of executors",
             Duration = 60
         })
     end
