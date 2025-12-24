@@ -1,8 +1,6 @@
 -- LICENSE : https://github.com/voidsaken-script/Voidsaken-Loader/blob/main/LICENSE
 -- ^ Read before you decide to paste
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/prompt.lua"))()
-
 local ScriptAssets = {
     Icon = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/unnamed.png",
     Flip = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/chrome_qL5NK7hyT8.png",
@@ -48,11 +46,13 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 if not table.find(forsaken_games, game.PlaceId) then
     Fluent:Notify({
         Title = "Unsupported game",
-        Content = string.format("%s is not a supported game", game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name),
+        Content = string.format("\"%s\" is not a supported place", game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name),
         Duration = 15
     })
-  return
+    return
 end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/prompt.lua"))()
 
 for i, v in pairs({"xeno", "solara", "celery", "nezur", "luna"}) do
     if string.find(identifyexecutor():lower(), v) then
