@@ -1,6 +1,15 @@
 -- LICENSE : https://github.com/voidsaken-script/Voidsaken-Loader/blob/main/LICENSE
 -- ^ Read before you decide to paste
 
+if _G.VoidsakenExecuted then
+    return _Fluent:Notify({
+        Title = "Voidsaken",
+        Content = "The script is already loaded",
+        Duration = 15
+    })
+end
+_G.VoidsakenExecuted = true
+
 local ScriptAssets = {
     Icon = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/unnamed.png",
     Flip = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/chrome_qL5NK7hyT8.png",
@@ -40,7 +49,13 @@ local forsaken_games = {
   83645629621104; -- forsaken new players
 }
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Success, Fluent = pcall(game.HttpGet, game, "https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")
+if not Success then
+    _G.VoidsakenExecuted = false
+    return kick("A http error occured. Voidsaken cannot be loaded (" .. tostring(Fluent) .. ")")
+end
+local Fluent = loadstring(Fluent)()
+getgenv()._Fluent = Fluent
 -- i do not use fluent. it is only for the notification library since roblox was gay and decided to start cutting off text
 
 if not table.find(forsaken_games, game.PlaceId) then
@@ -52,7 +67,9 @@ if not table.find(forsaken_games, game.PlaceId) then
     return
 end
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/prompt.lua"))()
+pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/prompt.lua"))()
+end)
 
 for i, v in pairs({"xeno", "solara", "celery", "nezur", "luna"}) do
     if string.find(identifyexecutor():lower(), v) then
@@ -2477,6 +2494,7 @@ pcall(function()
     })
 
     Library:OnUnload(function()
+        _G.VoidsakenExecuted = false
         panic()
         getgenv().FlipUI:Destroy()
         getgenv().AimbotUI:Destroy()
