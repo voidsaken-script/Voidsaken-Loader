@@ -16,6 +16,7 @@ local ScriptAssets = {
     Mouse = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/mouse.png",
     Move = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/move.png",
     Block = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/MuMuNxDevice_MAUxUHUyFK.png",
+    Trapped = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/4201973.png"
 
 }
 if not isfile("iadapted_d4af689ed2bc5a4e80115a09705f585c") then
@@ -65,6 +66,14 @@ if not table.find(forsaken_games, game.PlaceId) then
         Duration = 15
     })
     return
+else
+    if game.PlaceId ~= 18687417158 and game.PlaceId ~= 83645629621104 then
+        Fluent:Notify({
+            Title = "Complications",
+            Content = string.format("\"%s\" is not an official Forsaken place. Do not expect every feature to work as intended", game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name),
+            Duration = 15
+        })
+    end
 end
 
 pcall(function()
@@ -211,10 +220,9 @@ for _, killer in ipairs(workspace.Players.Killers:GetChildren()) do
 end
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
-Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/lib.luau"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
-Library.ForceCheckbox = true
 
 local function Notify(Title, Text, Duration)
     Library:Notify({
@@ -425,7 +433,7 @@ GeneratorsESPGroup:AddToggle("GeneratorsESPGreen", {
 })
 
 GeneratorsESPGroup:AddToggle("GeneratorsNametags", {
-    Text = "Generators Nametags",
+    Text = "Generators Nametag",
     Default = false,
     Callback = function(bool)
         _G.generatorstag = bool
@@ -477,6 +485,65 @@ GeneratorsESPGroup:AddToggle("GeneratorsNametags", {
     Default = Color3.fromRGB(255, 255, 255),
     Title = "Nametag Color",
 })
+
+local WarningUI = Instance.new("ScreenGui", gethui())
+WarningUI.IgnoreGuiInset = true
+local Images = {}
+GeneratorsESPGroup:AddToggle("TrapGenerator", {
+    Text = "Trapped Generator Warning",
+    Default = false,
+    Callback = function()
+        task.spawn(function()
+            while task.wait() do
+                if Toggles.TrapGenerator.Value then
+                    pcall(function()
+                        if workspace:FindFirstChild("Map") and gameMap:FindFirstChild("Ingame") and gameMap.Ingame:FindFirstChild("Map") then
+                            for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
+                                if v.Name == "FakeGenerator" and not v:GetAttribute("Warning") then
+                                    local WarningImage = Instance.new("ImageLabel", WarningUI)
+                                    WarningImage.Image = getcustomasset("VoidSaken/Trapped.png")
+                                    WarningImage.Size = UDim2.new(0, 50, 0, 50)
+                                    WarningImage.BackgroundTransparency = 1
+                                    WarningImage.BorderSizePixel = 0
+
+                                    Images[v] = WarningImage
+                                    v:SetAttribute("Warning", true)
+                                elseif v.Name == "FakeGenerator" and v:GetAttribute("Warning") then
+                                    local Pos, OnScreen = workspace.CurrentCamera:WorldToViewportPoint(v.WorldPivot.Position)
+                                    Images[v].Visible = OnScreen
+                                    Images[v].Position = UDim2.new(0, Pos.X, 0, Pos.Y)
+                                end
+                            end
+                        end
+                    end)
+                else
+                    pcall(function()
+                        if workspace:FindFirstChild("Map") and gameMap:FindFirstChild("Ingame") and gameMap.Ingame:FindFirstChild("Map") then
+                            for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
+                                if v.Name == "FakeGenerator" and v:GetAttribute("Warning") then
+                                    v:SetAttribute("Warning", false)
+                                    Images[v]:Destroy()
+                                end
+                            end
+                        end
+                    end)
+                    break
+                end
+            end
+        end)
+    end
+})
+task.spawn(function()
+    while true do
+        if playingState ~= "Playing" then
+            for i, v in pairs(Images) do
+                v:Destroy()
+                rawset(Images, i, nil)
+            end
+        end
+        wait()
+    end
+end)
 
 local generatorsDid = {}
 local activelyAutoing = false
@@ -592,7 +659,7 @@ GeneratorsGroup:AddButton({
             if not (gameMap and gameMap.Ingame and gameMap.Ingame.Map) then return end
             for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
                 if v.Name == "Generator" then
-                    pcall(function ()
+                    pcall(function()
                         if localPlayer.PlayerGui:FindFirstChild("PuzzleUI") then
                             local hello = v.Positions.Center.Position
                             if (localPlayer.Character.HumanoidRootPart.Position - hello).Magnitude <= 21 then
@@ -818,17 +885,18 @@ KillersESPGroup:AddToggle("KillersNametags", {
         _G.killertag = bool
         task.spawn(function()
             while task.wait() do
-                if _G.killertag then
+                if _G.killertag and not isKiller then
                     pcall(function()
                         local v = killerModel
                         if v and not v:FindFirstChild("nametag") then
+                            local name = canDoRequire and require(replicatedStorage.Assets.Killers[v.Name].Config).DisplayName or v.Name
                             local bb = Instance.new("BillboardGui", v)
                             bb.Size = UDim2.new(4, 0, 1, 0)
                             bb.AlwaysOnTop = true
                             bb.Name = "nametag"
                             local text = Instance.new("TextLabel", bb)
                             text.TextStrokeTransparency = 0
-                            text.Text = "Killer"
+                            text.Text = name
                             text.TextSize = 15
                             text.BackgroundTransparency = 1
                             text.Size = UDim2.new(1, 0, 1, 0)
@@ -912,12 +980,12 @@ SurvivorsESPGroup:AddToggle("SurvivorsNametags", {
                                     bb.Name = "nametag"
                                     local text = Instance.new("TextLabel", bb)
                                     text.TextStrokeTransparency = 0
-                                    text.Text = string.format("%dHP", v.Humanoid.Health)
                                     text.TextSize = 15
                                     text.BackgroundTransparency = 1
                                     text.Size = UDim2.new(1, 0, 1, 0)
                                 elseif v:FindFirstChild("nametag") then
                                     v.nametag.TextLabel.TextColor3 = Options.SurvivorNametagColor.Value
+                                    v.nametag.TextLabel.Text = string.format("%dHP", v.Humanoid.Health)
                                 end
                             end
                         end
@@ -945,7 +1013,7 @@ SurvivorsGroup:AddToggle("AutoCoinFlip", {
     Default = false,
     Callback = function (cool)
         _G.coin = cool
-        task.spawn(function ()
+        task.spawn(function()
             while _G.coin and task.wait(2.1) do
                 Network:WaitForChild("RemoteEvent"):FireServer("UseActorAbility", {buffer.fromstring("\"CoinFlip\"")})
             end
@@ -956,16 +1024,27 @@ SurvivorsGroup:AddToggle("AutoCoinFlip", {
 -- silent aim bruh
 local SilentAimGroup = Tabs.Main:AddLeftGroupbox("Silent Aim", "swords")
 SilentAimGroup:AddToggle("DusekkarSilentAim", {
-    Text = "Dusekkar Silent Aim",
+    Text = "Dusekkar",
+    UseLegacyToggle = true
 })
 SilentAimGroup:AddToggle("CoolkidSilentAim", {
-    Text = "c00lkid Silent Aim",
+    Text = "Coolkid",
+    UseLegacyToggle = true
+})
+SilentAimGroup:AddToggle("NoliSilentAim", {
+    Text = "Noli",
+    UseLegacyToggle = true
+})
+SilentAimGroup:AddToggle("HackerSilentAim", {
+    Text = "1x1x1x1",
+    UseLegacyToggle = true
 })
 --[[SilentAimGroup:AddToggle("Guest666Aimbot", {
     Text = "Guest666 Aimbot",
 })]]
 local isDusekkar = false
-local isCoolkid
+local isCoolkid = false
+local isNoli = false
 local suc, res = pcall(function()
     local old; old = hookmetamethod(game, "__namecall", function(self, ...)
         if typeof(self) == "Instance" and tostring(self) == "RemoteEvent" then
@@ -975,6 +1054,12 @@ local suc, res = pcall(function()
                 task.spawn(function()
                     task.wait(3)
                     isDusekkar = false
+                end)
+            elseif type(arg) == "table" and typeof(arg[1]) == "buffer" and buffer.tostring(arg[1]) == "\"Nova\"" then
+                isNoli = true
+                task.spawn(function()
+                    task.wait(3)
+                    isNoli = false
                 end)
             end
         end
@@ -988,9 +1073,13 @@ local suc, res = pcall(function()
         if isCoolkid and getClosestSurvivor() and Toggles.CoolkidSilentAim.Value then
             return getClosestSurvivor().HumanoidRootPart.Position
         end
+        if isNoli and getClosestSurvivor() and Toggles.NoliSilentAim.Value then
+            return getClosestSurvivor().HumanoidRootPart.Position
+        end
         return old()
     end))
 end)
+
 if not suc then
     warn("error in silent aim:", res)
 else
@@ -1007,6 +1096,17 @@ Network.RemoteEvent.OnClientEvent:Connect(function(...)
                 task.wait(3)
                 isCoolkid = false
             end)
+        elseif type(arg) == "table" and typeof(arg[1]) == "buffer" and buffer.tostring(arg[1]) == "\"Entanglement\"" then
+            if Toggles.HackerSilentAim.Value then
+                task.spawn(function()
+                    local Survivor = getClosestSurvivor()
+                    local start = tick()
+                    while tick() - start < 3 and task.wait() do
+                        warn("b")
+                        assist(Survivor, 0)
+                    end
+                end)
+            end
         end
     end
 end)
@@ -1234,10 +1334,10 @@ MiscESPGroup:AddToggle("ZombieESP", {
     Text = "1x1x1x1 Zombie ESP",
     Default = false,
     Callback = function(bool)
-        _G.killers = bool
+        _G.zombie = bool
         task.spawn(function()
             while task.wait() do
-                if _G.killers == true and not isKiller then
+                if _G.zombie == true then
                     if gameMap.Ingame:FindFirstChild("Map") then
                         for _, v in pairs(gameMap.Ingame:GetChildren()) do
                             if v.Name == "1x1x1x1Zombie" then
@@ -1344,7 +1444,7 @@ ItemsGroup:AddButton({
         if playingState == "Spectating" then
             return Notify("Must be in the round", "Cannot use this feature while spectating", 7)
         end
-        pcall(function ()
+        pcall(function()
             local items = {}
             if workspace:FindFirstChild("Map") and gameMap:FindFirstChild("Ingame") then
                 for _, v in pairs(gameMap.Ingame:GetDescendants()) do
@@ -1408,7 +1508,7 @@ StaminaGroup:AddToggle("FastSprint", {
     end
 })
 
-task.spawn(function ()
+task.spawn(function()
     local sprint = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
     while true do
         if _G.fsprint then
@@ -1455,7 +1555,7 @@ SpeedGroup:AddToggle("SpeedToggle", {
     Default = false,
     Callback = function (s)
         _G.SpeedToggle = s
-        task.spawn(function ()
+        task.spawn(function()
             local localPlayer = localPlayer
             while task.wait() do
                 if not _G.SpeedToggle then break end
@@ -1497,7 +1597,7 @@ NoclipGroup:AddToggle("EnableNoclip", {
                 Duration = 9
             })
         end
-        task.spawn(function ()
+        task.spawn(function()
             while task.wait() do
                 if not _G.noclipState then
                     disableNoclip()
@@ -1672,15 +1772,6 @@ InfJumpGroup:AddToggle("Invis", {
 
 local KillerGroup = Tabs.Killer:AddLeftGroupbox("Killer", "skull")
 local KillerMisc = Tabs.Killer:AddRightGroupbox("Misc", "cloud")
-KillerGroup:AddToggle("AllowKillerEntrances", {
-    Text = "Allow Killer Entrances",
-    Default = false,
-    Callback = function (call)
-        local lookFor = {
-            ""
-        }
-    end
-})
 
 KillerGroup:AddToggle("SpectateKiller", {
     Text = "Spectate Killer",
@@ -1701,7 +1792,7 @@ KillerGroup:AddToggle("SpectateKiller", {
 
 KillerGroup:AddButton({
     Text = "Teleport To Killer",
-    Func = function ()
+    Func = function()
         if playingState == "Spectating" then
             return Notify("Must be in the round", "Cannot use this feature while spectating", 7)
         end
@@ -1943,7 +2034,7 @@ KillerMisc:AddSlider("HitboxExpanderRange", {
     Rounding = 0,
 })
 
-local function assist(target, dist)
+function assist(target, dist)
     if target and dist <= 25 then
         local pos = localPlayer.Character.HumanoidRootPart.Position
         local targetPos = target.HumanoidRootPart.Position
@@ -1997,10 +2088,57 @@ SurvivorsGroup:AddToggle("AutoShedlesktly", {
     end
 })
 
+local Behavior = replicatedStorage.Assets.Survivors.Veeronica.Behavior
+local function Press(Code)
+    for i = 1, 2 do
+        game:GetService("VirtualInputManager"):SendKeyEvent(i<2, Code, false, game)
+        task.wait()
+    end
+end
+SurvivorsGroup:AddToggle("AutoVeronica", { 
+    Text = "Auto Trick",
+    Callback = function()
+        while Toggles.AutoVeronica.Value and task.wait() do
+            pcall(function()
+                if playingState == "Playing" and localPlayer.Character.Name == "Veeronica" then
+                    if Behavior:FindFirstChild("Highlight") then
+                        if Behavior.Highlight.Adornee == localPlayer.Character then
+                           Press(Enum.KeyCode.Space)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+local module = replicatedStorage.Assets.Survivors.Veeronica.Config
+SurvivorsGroup:AddToggle("SkateControl", { 
+    Text = "Skate Turn Control",
+    Callback = function(bool)
+        if bool--[[playingState == "Playing"]] then
+            Fluent:Notify({
+                Title = "Notice",
+                Content = "Please wait until next round for this to work",
+                Duration = 9
+            })
+        end
+        task.spawn(function()
+            while task.wait() do
+                if Toggles.SkateControl.Value then
+                    require(module).Sk8TurnControl = bool and 6.5
+                else
+                    require(module).Sk8TurnControl = bool and 0.65
+                    break
+                end
+            end
+        end)
+    end
+})
+
 KillerMisc:AddToggle("FrontFlip", { 
     Text = "Front Flip",
-    Tooltip = "funny",
-    Default = true,
+    Default = false,
     Callback = function(callback)
         getgenv().FlipUI.Enabled = callback
     end
@@ -2104,12 +2242,12 @@ local GensTP = Tabs.Teleport:AddLeftGroupbox("Generators Teleport", "pin")
 for i = 1, 5 do
     GensTP:AddButton({
         Text = "Teleport To Generator " .. i,
-        Func = function ()
+        Func = function()
             if playingState == "Spectating" then
                 return Notify("Must be in the round", "Cannot use this feature while spectating", 7)
             end
 
-            pcall(function ()
+            pcall(function()
                 if not (gameMap and gameMap.Ingame and gameMap.Ingame.Map) then return end
                 local gens = {}
 
@@ -2131,12 +2269,12 @@ local GensTP = Tabs.Teleport:AddRightGroupbox("Generators Walk", "pin")
 for i = 1, 5 do
     GensTP:AddButton({
         Text = "Walk To Generator " .. i,
-        Func = function ()
+        Func = function()
             if playingState == "Spectating" then
                 return Notify("Must be in the round", "Cannot use this feature while spectating", 7)
             end
 
-            local s, r = pcall(function ()
+            local s, r = pcall(function()
                 if not (gameMap and gameMap.Ingame and gameMap.Ingame.Map) then return end
                 local gens = {}
 
@@ -2161,10 +2299,10 @@ end
 local ItemsTP = Tabs.Teleport:AddRightGroupbox("Items", "shovel")
 ItemsTP:AddButton({
     Text = "Teleport To Random Item",
-    Func = function ()
+    Func = function()
         local items = {}
 
-        pcall(function ()
+        pcall(function()
             if playingState == "Spectating" then
                 return Notify("Must be in the round", "Cannot use this feature while spectating", 7)
             end
@@ -2199,7 +2337,7 @@ MiscGroup:AddToggle("AllowJump", {
             })
         end
 
-        task.spawn(function ()
+        task.spawn(function()
             while task.wait() do
                 if not _G.AllowJump then break end
                 local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
@@ -2224,7 +2362,7 @@ local alreadyPressed = false
 local alreadyPressedFB = false
 MiscGroup:AddButton({
     Text = "No Fog",
-    Func = function ()
+    Func = function()
         if alreadyPressed then return end
         alreadyPressed = true
         while true do
@@ -2254,8 +2392,8 @@ MiscGroup:AddButton({
 
 MiscGroup:AddButton({
     Text = "Kill Yourself",
-    Func = function ()
-        pcall(function ()
+    Func = function()
+        pcall(function()
             localPlayer.Character.Humanoid.Health = 0
         end)
     end
@@ -2263,8 +2401,8 @@ MiscGroup:AddButton({
 
 MiscGroup:AddButton({
     Text = "Rejoin",
-    Func = function ()
-        pcall(function ()
+    Func = function()
+        pcall(function()
             game:GetService("TeleportService"):Teleport(game.PlaceId, localPlayer)
         end)
     end
@@ -2272,8 +2410,8 @@ MiscGroup:AddButton({
 
 MiscGroup:AddButton({
     Text = "Join New Players Server",
-    Func = function ()
-        pcall(function ()
+    Func = function()
+        pcall(function()
             game:GetService("TeleportService"):Teleport(83645629621104, localPlayer)
         end)
     end
@@ -2508,7 +2646,7 @@ AntiGroup:AddToggle("AutoRemove1x1x1x1", {
     Default = false,
     Callback = function (bool)
         _G.no1x= bool
-        task.spawn(function ()
+        task.spawn(function()
             while _G.no1x and task.wait() do
                 local temp = localPlayer.PlayerGui:FindFirstChild("TemporaryUI")
 
@@ -2541,8 +2679,8 @@ AntiGroup:AddToggle("AntiHealthGlitch", {
 AntiGroup:AddToggle("AntiStun", {
     Text = "Anti Stun",
     Default = false,
-    Callback = function ()
-        task.spawn(function ()
+    Callback = function()
+        task.spawn(function()
             while Toggles.AntiStun.Value and task.wait() do
                 if localPlayer.Character and localPlayer.Character:FindFirstChild("SpeedMultipliers") then
                     if localPlayer.Character.SpeedMultipliers:FindFirstChild("Stunned") then
@@ -2556,8 +2694,8 @@ AntiGroup:AddToggle("AntiStun", {
 AntiGroup:AddToggle("AntiSlow", {
     Text = "Anti Slow",
     Default = false,
-    Callback = function ()
-        task.spawn(function ()
+    Callback = function()
+        task.spawn(function()
             while Toggles.AntiSlow.Value and task.wait() do
                 if localPlayer.Character and localPlayer.Character:FindFirstChild("SpeedMultipliers") then
                     for i, v in localPlayer.Character.SpeedMultipliers:GetChildren() do
@@ -2573,8 +2711,8 @@ AntiGroup:AddToggle("AntiSlow", {
 AntiGroup:AddToggle("AntiBlindness", {
     Text = "Anti Blindness",
     Default = false,
-    Callback = function ()
-        task.spawn(function ()
+    Callback = function()
+        task.spawn(function()
             while Toggles.AntiBlindness.Value and task.wait() do
                 if game.Lighting:FindFirstChild("BlindnessBlur") then
                     game.Lighting.BlindnessBlur:Destroy()
@@ -2586,8 +2724,8 @@ AntiGroup:AddToggle("AntiBlindness", {
 AntiGroup:AddToggle("AntiSubspace", {
     Text = "Anti Subspace",
     Default = false,
-    Callback = function ()
-        task.spawn(function ()
+    Callback = function()
+        task.spawn(function()
             while Toggles.AntiSubspace.Value and task.wait() do
                 local subspace = {
                     "SubspaceVFXBlur",
@@ -2683,12 +2821,12 @@ AntiGroup:AddToggle("AntiHiddenStats", {
     end
 })
 
-local canDoRequire = pcall(function()
-    require(game:GetService("ReplicatedStorage").Assets.Emotes.AICatDance)
+canDoRequire = pcall(function()
+    require(game:GetService("ReplicatedStorage").Assets.Emotes:FindFirstChildWhichIsA("ModuleScript"))
 end)
 
+local EmoteGroup = Tabs.Misc:AddRightGroupbox("Emotes", "party-popper")
 if canDoRequire then
-    local EmoteGroup = Tabs.Misc:AddRightGroupbox("Emotes", "party-popper")
     local emoteName = "AICatDance"
     local emoteTable = {}
 
@@ -2707,7 +2845,7 @@ if canDoRequire then
 
     EmoteGroup:AddButton({
         Text = "Play Emote (must own)",
-        Func = function ()
+        Func = function()
             local emoteCodeName
             for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
                 if require(v).DisplayName == emoteName then
@@ -2718,29 +2856,29 @@ if canDoRequire then
             Network:WaitForChild("RemoteEvent"):FireServer("PlayEmote", "Animations", emoteCodeName)
         end
     });
-    local lastTrack
-    EmoteGroup:AddButton({
-        Text = "Fake Emote",
-        Func = function()
-            print(pcall(function()
-                lastTrack:Cancel()
-            end))
-            local id
-            for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
-                if require(v).DisplayName == emoteName then
-                    id = require(v).AssetID
-                    break
-                end
-            end
-            local humanoid = localPlayer.Character.Humanoid
-            local anim = Instance.new("Animation")
-            anim.AnimationId = id
-            local track = humanoid:LoadAnimation(anim)
-            lastTrack = track
-            track:Play()
-        end
-    });
 end
+local lastTrack
+EmoteGroup:AddButton({
+    Text = "Fake Emote",
+    Func = function()
+        print(pcall(function()
+            lastTrack:Cancel()
+        end))
+        local id
+        for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
+            if require(v).DisplayName == emoteName then
+                id = require(v).AssetID
+                break
+            end
+        end
+        local humanoid = localPlayer.Character.Humanoid
+        local anim = Instance.new("Animation")
+        anim.AnimationId = id
+        local track = humanoid:LoadAnimation(anim)
+        lastTrack = track
+        track:Play()
+    end
+});
 
 --[[
 these don't work anymore, they're patched. but the code will stay here for the sake of archiving
@@ -2901,53 +3039,6 @@ function FortniteFlips()
     end)
 end
 
-local Flip = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local button = Instance.new("ImageButton")
-local UICorner = Instance.new("UICorner")
-local move = Instance.new("ImageLabel")
-
-Flip.Name = "Flip"
-Flip.Parent = gethui()
-Flip.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Flip.DisplayOrder = 999999
-Flip.OnTopOfCoreBlur = true
-
-Frame.Parent = Flip
-Frame.AnchorPoint = Vector2.new(1, 1)
-Frame.BackgroundColor3 = Color3.fromRGB(49, 49, 49)
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(1, -30, 1, -30)
-Frame.Size = UDim2.new(0, 98, 0, 44)
-
-button.Name = "button"
-button.Parent = Frame
-button.AnchorPoint = Vector2.new(0, 0.5)
-button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-button.BackgroundTransparency = 1.000
-button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-button.BorderSizePixel = 0
-button.Position = UDim2.new(0, 5, 0.5, 0)
-button.Size = UDim2.new(0, 36, 0, 36)
-button.Image = getcustomasset("VoidSaken/Flip.png")
-button.Name = "button"
-Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
-
-UICorner.CornerRadius = UDim.new(0, 13)
-UICorner.Parent = Frame
-
-move.Name = "move"
-move.Parent = Frame
-move.AnchorPoint = Vector2.new(1, 0.5)
-move.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-move.BackgroundTransparency = 1.000
-move.BorderColor3 = Color3.fromRGB(0, 0, 0)
-move.BorderSizePixel = 0
-move.Position = UDim2.new(1, -5, 0.5, 0)
-move.Size = UDim2.new(0, 36, 0, 36)
-move.Image = getcustomasset("VoidSaken/Move.png")
-
 local UIS = game:GetService("UserInputService")
 local function dragify(Frame, DragInp)
 	local dragToggle = nil
@@ -2984,9 +3075,60 @@ local function dragify(Frame, DragInp)
 		end
 	end)
 end
-dragify(Frame, move)
-getgenv().FlipUI = Flip
-button.MouseButton1Click:Connect(FortniteFlips)
+
+local Flip = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local button = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+local move = Instance.new("ImageLabel")
+
+Flip.Name = "Flip"
+Flip.Parent = gethui()
+Flip.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Flip.DisplayOrder = 999999
+Flip.OnTopOfCoreBlur = true
+Flip.Enabled = false
+
+Frame.Parent = Flip
+Frame.AnchorPoint = Vector2.new(1, 1)
+Frame.BackgroundColor3 = Color3.fromRGB(49, 49, 49)
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(1, -30, 1, -30)
+Frame.Size = UDim2.new(0, 98, 0, 44)
+
+button.Name = "button"
+button.Parent = Frame
+button.AnchorPoint = Vector2.new(0, 0.5)
+button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+button.BackgroundTransparency = 1.000
+button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+button.BorderSizePixel = 0
+button.Position = UDim2.new(0, 5, 0.5, 0)
+button.Size = UDim2.new(0, 36, 0, 36)
+button.Image = getcustomasset("VoidSaken/Flip.png")
+button.Name = "button"
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+
+UICorner.CornerRadius = UDim.new(0, 13)
+UICorner.Parent = Frame
+
+move.Name = "move"
+move.Parent = Frame
+move.AnchorPoint = Vector2.new(1, 0.5)
+move.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+move.BackgroundTransparency = 1.000
+move.BorderColor3 = Color3.fromRGB(0, 0, 0)
+move.BorderSizePixel = 0
+move.Position = UDim2.new(1, -5, 0.5, 0)
+move.Size = UDim2.new(0, 36, 0, 36)
+move.Image = getcustomasset("VoidSaken/Move.png")
+
+do
+    dragify(Frame, move)
+    getgenv().FlipUI = Flip
+    button.MouseButton1Click:Connect(FortniteFlips)
+end
 
 local AimbotMobile = Instance.new("ScreenGui")
 local Frame2 = Frame
@@ -3046,11 +3188,13 @@ text.Font = Enum.Font.Nunito
 text.BorderSizePixel = 0
 text.BackgroundTransparency = 1
 
-dragify(Frame, move)
-getgenv().AimbotUI = AimbotMobile
-button.MouseButton1Click:Connect(function()
-    aimbotHeld = not aimbotHeld
-end)
+do
+    dragify(Frame, move)
+    getgenv().AimbotUI = AimbotMobile
+    button.MouseButton1Click:Connect(function()
+        aimbotHeld = not aimbotHeld
+    end)
+end
 
 local stroke = Instance.new("UIStroke")
 stroke.Thickness = 1
@@ -3064,11 +3208,14 @@ BlockUI.Parent = gethui()
 BlockUI.Frame.Position = UDim2.new(1, -140, 1, -30)
 BlockUI.Frame.button.Image = getcustomasset("VoidSaken/Block.png")
 stroke:Clone().Parent = BlockUI.Frame
-dragify(BlockUI.Frame, BlockUI.Frame.move)
-getgenv().BlockUI = BlockUI
-BlockUI.Frame.button.MouseButton1Click:Connect(function()
-    pcall(FakeBlock)
-end)
+
+do
+    dragify(BlockUI.Frame, BlockUI.Frame.move)
+    getgenv().BlockUI = BlockUI
+    BlockUI.Frame.button.MouseButton1Click:Connect(function()
+        pcall(FakeBlock)
+    end)
+end
 
 local httpservice = game:GetService("HttpService")
 local function jsonpositions()
@@ -3105,4 +3252,5 @@ task.spawn(function()
         writefile("voidsaken_button_positions.json", jsonpositions())
     end
 end)
+
 SaveManager:LoadAutoloadConfig()
