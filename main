@@ -2880,12 +2880,9 @@ EmoteGroup:AddButton({
     end
 });
 
---[[
-these don't work anymore, they're patched. but the code will stay here for the sake of archiving
-
 local function unlock(achieve)
    local remote = Network:WaitForChild("RemoteEvent")
-   remote:FireServer("UnlockAchievement", achieve)
+   remote:FireServer("UnlockAchievement", {buffer.fromstring("\"" .. achieve .. "\"")})
 end
 
 local BadgeGroup = Tabs.Misc:AddRightGroupbox("Achievements", "award")
@@ -2914,7 +2911,6 @@ BadgeGroup:AddButton({
    Text = "\"Black, white, and gray\"",
    Func = function() unlock("Morality") end,
 })
-]]
 
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu", "wrench")
 
