@@ -1,4 +1,8 @@
--- e
+-- e#
+if _G.PromptAlreadyLoaded then
+	return;
+end;
+_G.PromptAlreadyLoaded = true;
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/babyBlueArchive.lua"))();
 end);
