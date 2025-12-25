@@ -1540,9 +1540,13 @@ StaminaGroup:AddSlider("SprintSpeed", {
     end
 })
 
-local SpeedGroup = Tabs["Local Player"]:AddRightGroupbox("Speed", "wind")
-local yeahvariable = 0
 
+local SpeedGroup = Tabs["Local Player"]:AddRightGroupbox("Speed", "wind")
+SpeedGroup:AddLabel({
+    Text = "Speed had to be removed because Forsaken improved the anticheat to have better detections against Speed hacking",
+    DoesWrap = true
+})
+--[[
 SpeedGroup:AddSlider("SpeedBypass", {
     Text = "Speed (Bypass)",
     Default = 16,
@@ -1569,6 +1573,7 @@ SpeedGroup:AddToggle("SpeedToggle", {
         end)
     end
 })
+]]
 
 local NoclipGroup = Tabs["Local Player"]:AddRightGroupbox("Noclip", "cuboid")
 local cachedParts = {}
