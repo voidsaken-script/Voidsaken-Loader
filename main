@@ -131,7 +131,9 @@ local localPlayer = Players.LocalPlayer
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local Network = replicatedStorage:WaitForChild("Modules"):WaitForChild("Network")
 local gameMap = workspace.Map
-
+local isSurvivor
+local isKiller
+local killerModel
 local pathfindingIndex = 0
 local function pathfindTo(targetPos)
     local indexNow = pathfindingIndex
@@ -171,8 +173,7 @@ local autoBlockAnimations = AttackAnimations
 local autoBlockVar
 
 local function hasAbility(name)
-    return localPlayer.PlayerGui.MainUI:FindFirstChild("AbilityContainer")
-        and localPlayer.PlayerGui.MainUI.AbilityContainer:FindFirstChild(name)
+    return localPlayer.PlayerGui.MainUI:FindFirstChild("AbilityContainer") and localPlayer.PlayerGui.MainUI.AbilityContainer:FindFirstChild(name)
 end
 
 local function hasAbilityReady(name)
@@ -239,7 +240,7 @@ Options = Library.Options
 Toggles = Library.Toggles
 
 Window = Library:CreateWindow({
-    Title = "🎄 Voidsaken V1.2",
+    Title = "🎄Voidsaken V1.25",
     Footer = "discord.gg/fdBZygQthm [MERRY CHRISTMAS]",
     Icon = IconImage,
     NotifySide = "Right",
@@ -247,7 +248,7 @@ Window = Library:CreateWindow({
     Size = UDim2.fromOffset(736, 370)
 })
 
-local Discord = Window:AddTab("DISCORD", "external-link", "Our discord server: https://discord.gg/fdBZygQthm")
+local Discord = Window:AddTab("Home", "house", "Our discord server: https://discord.gg/fdBZygQthm")
 local A = Discord:AddLeftGroupbox("Discord", "external-link")
 A:AddButton({
     Text = "Copy Discord",
@@ -256,6 +257,118 @@ A:AddButton({
         Notify("Copied", "Discord invite copied! please join", 9)
     end
 })
+local B = Discord:AddRightGroupbox("Quick Actions", "shield")
+B:AddButton({
+    Text = "Reset Button Positions",
+    Func = function()
+        if not isfile("voidsaken_button_positions.json") then
+            return Notify("Reset", "The UI button positions have not been saved yet and the file does not exist", 9)
+        end
+        delfile("voidsaken_button_positions.json")
+        Notify("Reset", "The position of UI Buttons have been reset", 9)
+    end
+})
+B:AddButton({
+    Text = "Panic",
+    Tooltip = "Immediately disables <b><font color=\"rgb(200, 0, 0)\">ALL</font></b> features",
+    Func = function()
+        panic()
+    end
+})
+local C = Discord:AddLeftGroupbox("Info", "text-align-start")
+local KillerChanceText = C:AddLabel({
+    Text = "Chance to be killer: <b>n/a%</b>",
+})
+local MapNameText = C:AddLabel({
+    Text = "Current Map: <b>None</b>",
+    DoesWrap = true
+})
+local SurvivorsLeftText = C:AddLabel({
+    Text = "Survivors Left: <b>N/A</b>",
+    DoesWrap = true
+})
+local KillerText = C:AddLabel({
+    Text = "Killer: <b>N/A</b> (@%s)",
+    DoesWrap = true
+})
+
+task.spawn(function()
+    while true do
+        KillerChanceText:SetText(string.format("Chance to be killer: <b>%d%%</b>", localPlayer.leaderstats.KillerChance.Value))
+        task.wait(0.3)
+    end
+end)
+task.spawn(function()
+    while true do
+        if canDoRequire then
+            local s, map = pcall(function()
+                return require(gameMap.Ingame.Map.Config).DisplayName
+            end)
+            map = s and map or "None"
+            MapNameText:SetText(string.format("Current Map: <b>%s</b>", map))
+        else
+            MapNameText:SetText("Your executor does not support this")
+        end
+        task.wait(0.3)
+    end
+end)
+task.spawn(function()
+    while true do
+        SurvivorsLeftText:SetText(string.format("Survivors Left: <b>%d</b>", #workspace.Players.Survivors:GetChildren()))
+        task.wait(0.3)
+    end
+end)
+task.spawn(function()
+    while true do
+        if canDoRequire then
+            if killerModel then
+                KillerText:SetText(string.format("Killer: <b>%s</b> (<b>@%s</b>)", require(replicatedStorage.Assets.Killers.Sixer.Config).DisplayName, game.Players[killerModel:GetAttribute("Username")].DisplayName))
+            end
+        else
+            KillerText:SetText("Your executor does not support this")
+        end
+        task.wait(0.3)
+    end
+end)
+local D = Discord:AddRightGroupbox("Performance", "gauge")
+local PingText = D:AddLabel({
+    Text = "Ping: <b>N/A</b>ms",
+})
+local FramesText = D:AddLabel({
+    Text = "FPS: <b>N/A</b>/s",
+})
+task.spawn(function()
+    local Stats = game:GetService("Stats")
+    local FpsUtil = loadstring(game:HttpGet("https://raw.githubusercontent.com/voidsaken-script/Voidsaken-Loader/refs/heads/main/fps.lua"))()
+    while true do
+        local Ping = Stats.PerformanceStats.Ping:GetValue()
+        local FPS = FpsUtil.GetFPS()
+        local PingColor, FpsColor = (function()
+            if Ping < 50 then
+                return "0, 233, 0"
+            elseif Ping >= 50 then
+                if Ping > 200 then
+                    return "255, 0, 0"
+                else
+                    return "255, 188, 71"
+                end
+            end
+        end)(), (function()
+            if FPS > 70 then
+                return "0, 233, 0"
+            elseif FPS <= 70 then
+                if FPS < 30 then
+                    return "255, 0, 0"
+                else
+                    return "255, 188, 71"
+                end
+            end
+        end)()
+        PingText:SetText(string.format("Ping: <b><font color=\"rgb(%s)\">%d</font></b>ms", PingColor, Ping))
+        FramesText:SetText(string.format("FPS: <b><font color=\"rgb(%s)\">%d</font></b>/s", FpsColor, FPS))
+        task.wait(1)
+    end
+end)
 
 local Tabs = {
     Main = Window:AddTab("Main", "zap"),
@@ -268,7 +381,6 @@ local Tabs = {
     ["UI Settings"] = Window:AddTab("UI Settings", "wrench"),
 }
 
-local isSurvivor, isKiller, killerModel
 task.spawn(function()
     while task.wait() do
         local _isKiller = false
@@ -2614,17 +2726,6 @@ pcall(function()
         end
     })
 
-    local KillerChanceText = MiscGroup:AddLabel({
-        Text = "Chance to be killer: n/a%",
-    })
-
-    task.spawn(function()
-        while true do
-            KillerChanceText:SetText(string.format("Chance to be killer: %d%%", localPlayer.leaderstats.KillerChance.Value))
-            task.wait(0.3)
-        end
-    end)
-
     function panic()
         for i, v in pairs(Toggles) do
             pcall(function()
@@ -2633,11 +2734,6 @@ pcall(function()
             end)
         end
     end
-
-    MiscGroup:AddButton({
-        Text = "Panic",
-        Func = panic
-    })
 
     Library:OnUnload(function()
         _G.VoidsakenExecuted = false
@@ -2834,8 +2930,8 @@ canDoRequire = pcall(function()
 end)
 
 local EmoteGroup = Tabs.Misc:AddRightGroupbox("Emotes", "party-popper")
+local emoteName = "Hakari Dance"
 if canDoRequire then
-    local emoteName = "AICatDance"
     local emoteTable = {}
 
     for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
@@ -2869,9 +2965,9 @@ local lastTrack
 EmoteGroup:AddButton({
     Text = "Fake Emote",
     Func = function()
-        print(pcall(function()
+        pcall(function()
             lastTrack:Cancel()
-        end))
+        end)
         local id
         for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
             if require(v).DisplayName == emoteName then
