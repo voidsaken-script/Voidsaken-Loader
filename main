@@ -20,7 +20,7 @@ local ScriptAssets = {
 
 }
 if not isfile("iadapted_d4af689ed2bc5a4e80115a09705f585c") then
-    if isfile("VoidSaken") then
+    if isfolder("VoidSaken") then
         delfolder("VoidSaken")
     end
     writefile("iadapted_d4af689ed2bc5a4e80115a09705f585c", "")
