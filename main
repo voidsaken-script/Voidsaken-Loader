@@ -239,8 +239,8 @@ Options = Library.Options
 Toggles = Library.Toggles
 
 Window = Library:CreateWindow({
-    Title = "Voidsaken V1.2",
-    Footer = "discord.gg/fdBZygQthm [running source & keyless]",
+    Title = "🎄 Voidsaken V1.2",
+    Footer = "discord.gg/fdBZygQthm [MERRY CHRISTMAS]",
     Icon = IconImage,
     NotifySide = "Right",
     ShowCustomCursor = true,
@@ -555,14 +555,13 @@ GeneratorsGroup:AddToggle("AutoCompleteGenerator", {
     Default = false,
     Callback = function(bool)
         _G.instantGenerator = bool
-
         task.spawn(function()
             while _G.instantGenerator and task.wait() do
                 if workspace:FindFirstChild("Map") and gameMap:FindFirstChild("Ingame") and gameMap.Ingame:FindFirstChild("Map") then
                     pcall(function()
                         for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
-                            pcall(function()
-                                if not generatorsDid[v] and v.Name == "Generator" and v:FindFirstChild("Scripts") and v.Scripts:FindFirstChild("Client") then
+                            if not generatorsDid[v] and v.Name == "Generator" then
+                                pcall(function()
                                     if not getsenv(v.Scripts.Client).toggleGeneratorState then return end
                                     generatorsDid[v] = true
                                     local old; old = hookfunction(getsenv(v.Scripts.Client).toggleGeneratorState, newcclosure(function(a)
@@ -574,12 +573,12 @@ GeneratorsGroup:AddToggle("AutoCompleteGenerator", {
                                             return old(a) 
                                         end
 
-                                        if a ~= "enter" then 
+                                        if a ~= "Enter" then 
                                             activelyAutoing = false
-                                            return old("leave")
+                                            return old("Leave")
                                         end
 
-                                        local result = v.Remotes.RF:InvokeServer("enter")
+                                        local result = v.Remotes.RF:InvokeServer("Enter")
                                         if result ~= "fixing" then
                                             return
                                         end
@@ -597,8 +596,8 @@ GeneratorsGroup:AddToggle("AutoCompleteGenerator", {
                                         activelyAutoing = false
                                         return ""
                                     end))
-                                end
-                            end)
+                                end)
+                            end
                         end
                     end)
                 end
@@ -621,7 +620,7 @@ GeneratorsGroup:AddToggle("AutoStartGenerator", {
                                 pcall(function()
                                     local function nextStep()
                                         if localPlayer.PlayerGui:FindFirstChild("PuzzleUI") then return end
-                                        if activelyAutoing then return end
+                                        if activelyAutoing then return end  
 
                                         if v.Main:FindFirstChild("Prompt") then
                                             fireproximityprompt(v.Main.Prompt)
@@ -726,7 +725,7 @@ local function completeGenerators()
                     task.wait(0.2)
                     
 
-                    local result = v.Remotes.RF:InvokeServer("enter")
+                    local result = v.Remotes.RF:InvokeServer("Enter")
                     if result ~= "fixing" then
                         return
                     end
@@ -1561,9 +1560,10 @@ SpeedGroup:AddToggle("SpeedToggle", {
             local localPlayer = localPlayer
             while task.wait() do
                 if not _G.SpeedToggle then break end
-                local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid")
+                local humanoid = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") and localPlayer.Character:FindFirstChild("Humanoid")
                 if humanoid and humanoid.MoveDirection ~= Vector3.zero then
                     localPlayer.Character:TranslateBy(humanoid.MoveDirection * yeahvariable * game:GetService("RunService").RenderStepped:Wait())
+                    localPlayer.Character.HumanoidRootPart.Velocity = Vector3.zero
                 end
             end
         end)
@@ -1652,18 +1652,19 @@ local fly = InfJumpGroup:AddToggle("InfiniteJump", {
                 if localPlayer.Character then
                     local root = localPlayer.Character:FindFirstChild("Humanoid") and localPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if root then
-                        local vel = 2.45
+                        local vel = 0
 
                         if up then
-                            vel = vel + Options.FlyVerticalSpeed.Value - 2.45
+                            vel = vel + Options.FlyVerticalSpeed.Value / 100
                         end
 
                         if down then
-                            vel = vel - Options.FlyVerticalSpeed.Value + 2.45
+                            vel = vel - Options.FlyVerticalSpeed.Value / 100
                         end
 
                         if root then
-                            root.Velocity = Vector3.new(root.Velocity.X, vel, root.Velocity.Z)
+                            localPlayer.Character.HumanoidRootPart.CFrame = localPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, vel, 0)
+                            localPlayer.Character.HumanoidRootPart.Velocity = Vector3.zero
                             if localPlayer.Character.Humanoid.MoveDirection ~= Vector3.zero then
                                 localPlayer.Character:TranslateBy(localPlayer.Character.Humanoid.MoveDirection * Options.FlySpeed.Value * game:GetService("RunService").RenderStepped:Wait())
                             end
