@@ -116,7 +116,7 @@ local AttackAnimations = {
     "rbxassetid://74707328554358", "rbxassetid://133336594357903", "rbxassetid://86204001129974",
     "rbxassetid://124243639579224", "rbxassetid://70371667919898", "rbxassetid://131543461321709",
     "rbxassetid://136323728355613", "rbxassetid://109230267448394", "rbxassetid://122709416391891",
-    "rbxassetid://121808371053483"
+    "rbxassetid://121808371053483", "rbxassetid://106538427162796"
 }
 
 local function debugCall(suc, res)
@@ -195,7 +195,7 @@ local function trackAnimations(char)
 
     animator.AnimationPlayed:Connect(function(track)
         if not table.find(autoBlockAnimations, track.Animation.AnimationId) then
-            print("animation:", track.Animation.AnimationId)
+            --print("animation:", track.Animation.AnimationId)
         end
         if hasAbilityReady("Block") and isSurvivor and autoBlockVar and table.find(autoBlockAnimations, track.Animation.AnimationId) then
             if killerModel then
@@ -261,12 +261,14 @@ local B = Discord:AddRightGroupbox("Quick Actions", "shield")
 B:AddButton({
     Text = "Reset Button Positions",
     Func = function()
+        getgenv().AimbotUI.Frame.Position = UDim2.new(1, -30, 1, -90)
+        getgenv().FlipUI.Frame.Position = UDim2.new(1, -30, 1, -30)
+        getgenv().BlockUI.Frame.Position = UDim2.new(1, -140, 1, -30)
         if not isfile("voidsaken_button_positions.json") then
             return Notify("Reset", "The UI button positions have not been saved yet and the file does not exist", 9)
         end
         delfile("voidsaken_button_positions.json")
-        Notify("Reset", "The position of UI Buttons have been reset", 9)
-        loadpositions()
+        Notify("Reset", "The position of UI Buttons have been reset. Re-execute to apply", 9)
     end
 })
 B:AddButton({
@@ -398,7 +400,7 @@ task.spawn(function()
             if activelyAutoing then return end
             if playingState ~= "Playing" then return end
             for i, v in pairs(gameMap.Ingame.CurrencyLocations:GetChildren()) do
-                if v:IsA("Model") then
+                if v:IsA("Model") and v:FindFirstChildWhichIsA("Part").Position.Y > -200 then
                     localPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChildWhichIsA("Part").CFrame
                 end
             end
@@ -839,7 +841,7 @@ local function completeGenerators()
 
         for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
             if v.Name == "Generator" then
-                print(pcall(function()
+                pcall(function()
                     if v.Progress.Value >= 100 then return end
 
                     local function checkOccupance(pos)
@@ -884,7 +886,7 @@ local function completeGenerators()
                         v.Remotes.RE:FireServer()
                         generatorWait()
                     end
-                end))
+                end)
             end
         end
     end)
@@ -3371,7 +3373,7 @@ end
 if not isfile("voidsaken_button_positions.json") then
     writefile("voidsaken_button_positions.json", jsonpositions())
 end
-function loadpositions()
+local function loadpositions()
     local positions = httpservice:JSONDecode(readfile("voidsaken_button_positions.json"))
     for i, v in pairs(positions) do
         local ui = getgenv()[i].Frame
