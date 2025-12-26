@@ -1,7 +1,6 @@
 -- LICENSE : https://github.com/voidsaken-script/Voidsaken-Loader/blob/main/LICENSE
 -- ^ Read before you decide to paste
 
-_G.VoidsakenExecuted = false
 if _G.VoidsakenExecuted then
     return _Fluent:Notify({
         Title = "Voidsaken",
