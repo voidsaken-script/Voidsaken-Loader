@@ -55,12 +55,7 @@ local forsaken_games = {
   83645629621104; -- forsaken new players
 }
 
-local Success, Fluent = pcall(game.HttpGet, game, "https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua")
-if not Success then
-    _G.VoidsakenExecuted = false
-    return kick("A http error occured. Voidsaken cannot be loaded (" .. tostring(Fluent) .. ")")
-end
-local Fluent = loadstring(Fluent)()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 getgenv()._Fluent = Fluent
 -- i do not use fluent. it is only for the notification library since roblox was gay and decided to start cutting off text
 
@@ -296,6 +291,42 @@ local function dragify(Frame, DragInp)
 		end
 	end)
 end
+local translations = {
+    {
+        ["en-us"] = "Publish your current settings as a publicly available configuration for others to use",
+        ["zh-cn"] = "将您当前的设置发布为公开配置，供他人使用",
+        ["zh-tw"] = "將您目前的設定發佈為公開配置，供他人使用",
+        ["fr-fr"] = "Publiez vos paramètres actuels en tant que configuration publique pour les autres utilisateurs",
+        ["de-de"] = "Veröffentlichen Sie Ihre aktuellen Einstellungen als öffentlich verfügbare Konfiguration für andere",
+        ["id-id"] = "Publikasikan pengaturan Anda saat ini sebagai konfigurasi publik untuk digunakan orang lain",
+        ["it-it"] = "Pubblica le tue impostazioni attuali come configurazione pubblica per gli altri utenti",
+        ["ja-jp"] = "現在の設定を他のユーザーが使用できる公開設定として公開する",
+        ["ko-kr"] = "현재 설정을 다른 사용자가 사용할 수 있도록 공개 설정으로 게시",
+        ["pl-pl"] = "Opublikuj swoje aktualne ustawienia jako publicznie dostępną konfigurację dla innych",
+        ["ru-ru"] = "Опубликуйте свои текущие настройки как общедоступную конфигурацию для других пользователей",
+        ["es-es"] = "Publica tus ajustes actuales como una configuración pública para que otros la usen",
+        ["th-th"] = "เผยแพร่การตั้งค่าปัจจุบันของคุณเป็นค่ากำหนดสาธารณะเพื่อให้ผู้อื่นใช้งาน",
+        ["tr-tr"] = "Mevcut ayarlarınızı başkalarının kullanabilmesi için herkese açık bir yapılandırma olarak yayınlayın",
+        ["vi-vn"] = "Xuất bản cài đặt hiện tại của bạn dưới dạng cấu hình công khai để người khác sử dụng"
+    },
+    {
+        ["en-us"] = "Find public available settings created by voidsaken users",
+        ["zh-cn"] = "查找由 voidsaken 用户创建的公开设置",
+        ["zh-tw"] = "查找由 voidsaken 用戶建立的公開設定",
+        ["fr-fr"] = "Trouver les paramètres publics créés par les utilisateurs de voidsaken",
+        ["de-de"] = "Öffentlich verfügbare Einstellungen von voidsaken-Benutzern finden",
+        ["id-id"] = "Temukan pengaturan publik yang dibuat oleh pengguna voidsaken",
+        ["it-it"] = "Trova le impostazioni pubbliche create dagli utenti di voidsaken",
+        ["ja-jp"] = "voidsaken ユーザーが作成した公開設定を検索する",
+        ["ko-kr"] = "voidsaken 사용자가 만든 공개 설정 찾기",
+        ["pl-pl"] = "Znajdź publicznie dostępne ustawienia utworzone przez użytkowników voidsaken",
+        ["ru-ru"] = "Найти общедоступные настройки, созданные пользователями voidsaken",
+        ["es-es"] = "Buscar ajustes públicos creados por usuarios de voidsaken",
+        ["th-th"] = "ค้นหาการตั้งค่าสาธารณะที่สร้างโดยผู้ใช้ voidsaken",
+        ["tr-tr"] = "voidsaken kullanıcıları tarafından oluşturulan herkese açık ayarları bul",
+        ["vi-vn"] = "Tìm các cài đặt công khai được tạo bởi người dùng voidsaken"
+    }
+}
 do
     local ScreenGui = Instance.new("ScreenGui")
     local Main = Instance.new("Frame")
@@ -358,7 +389,7 @@ do
     Title.Position = UDim2.new(0, 14, 0, 6)
     Title.Size = UDim2.new(0, 200, 0, 24)
     Title.Font = Enum.Font.SourceSansBold
-    Title.Text = "Publish your current settings as a publicly available configuration for others to use"
+    Title.Text = translations[1][localPlayer.LocaleId] or "Publish your current settings as a publicly available configuration for others to use"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 17.000
     Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -637,7 +668,7 @@ do
 	Title.Position = UDim2.new(0, 14, 0, 6)
 	Title.Size = UDim2.new(0, 200, 0, 24)
 	Title.Font = Enum.Font.SourceSansBold
-	Title.Text = "Find public available settings created by voidsaken users"
+	Title.Text = translations[2][localPlayer.LocaleId] or "Find public available settings created by voidsaken users"
 	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 	Title.TextSize = 17.000
 	Title.TextXAlignment = Enum.TextXAlignment.Left
