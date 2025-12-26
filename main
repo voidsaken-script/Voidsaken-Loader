@@ -129,6 +129,7 @@ local function debugCall(suc, res)
 end
 
 local PathfindingService = game:GetService("PathfindingService")
+local httpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -252,12 +253,546 @@ Window = Library:CreateWindow({
 })
 
 local Discord = Window:AddTab("Home", "house", "Our discord server: https://discord.gg/fdBZygQthm")
+local Community = Window:AddTab("Community", "smile", "Find configs from other users")
+
+local OpenPublisher
+local ClosePublisher
+local OpenSearcher
+local CloseSearcher
+local Make
+local Reset
+local function dragify(Frame, DragInp)
+	local dragToggle = nil
+	local dragInput = nil
+	local dragStart = nil
+	local Delta
+	local Position
+	local startPos
+	local function updateInput(input)
+		Delta = input.Position - dragStart
+		Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
+		Frame.Position = Position
+	end
+	DragInp.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and game:GetService("UserInputService"):GetFocusedTextBox() == nil then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = Frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
+		end
+	end)
+	DragInp.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			dragInput = input
+		end
+	end)
+	game:GetService("UserInputService").InputChanged:Connect(function(input)
+		if input == dragInput and dragToggle then
+			updateInput(input)
+		end
+	end)
+end
+do
+    local ScreenGui = Instance.new("ScreenGui")
+    local Main = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local Title = Instance.new("TextLabel")
+    local fields = Instance.new("Frame")
+    local UICorner_2 = Instance.new("UICorner")
+    local configname = Instance.new("Frame")
+    local FieldName = Instance.new("TextLabel")
+    local Value = Instance.new("TextBox")
+    local UICorner_3 = Instance.new("UICorner")
+    local UIListLayout = Instance.new("UIListLayout")
+    local description = Instance.new("Frame")
+    local Value_2 = Instance.new("TextBox")
+    local UICorner_4 = Instance.new("UICorner")
+    local FieldName_2 = Instance.new("TextLabel")
+    local anonymous = Instance.new("Frame")
+    local FieldName_3 = Instance.new("TextLabel")
+    local Switch = Instance.new("Frame")
+    local UICorner_5 = Instance.new("UICorner")
+    local Circle = Instance.new("Frame")
+    local UICorner_6 = Instance.new("UICorner")
+    local PublishButton = Instance.new("TextButton")
+    local CancelButton = Instance.new("TextButton")
+    local Stroke = Instance.new("UIStroke")
+
+    ScreenGui.Parent = gethui and gethui() or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Enabled = false
+
+    function OpenPublisher()
+        ScreenGui.Enabled = true
+    end
+
+    function ClosePublisher()
+        ScreenGui.Enabled = false
+    end
+
+    Main.Name = "Main"
+    Main.Parent = ScreenGui
+    Main.AnchorPoint = Vector2.new(0.5, 0.5)
+    Main.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+    Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Main.BorderSizePixel = 0
+    Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Main.Size = UDim2.new(0, 530, 0, 250)
+
+    Stroke.Parent = Main
+    Stroke.Thickness = 2
+    Stroke.Color = Color3.fromRGB(130, 170, 255)
+
+    UICorner.Parent = Main
+
+    Title.Name = "Title"
+    Title.Parent = Main
+    Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Title.BackgroundTransparency = 1.000
+    Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Title.BorderSizePixel = 0
+    Title.Position = UDim2.new(0, 14, 0, 6)
+    Title.Size = UDim2.new(0, 200, 0, 24)
+    Title.Font = Enum.Font.SourceSansBold
+    Title.Text = "Publish your current settings as a publicly available configuration for others to use"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 17.000
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    fields.Name = "fields"
+    fields.Parent = Main
+    fields.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+    fields.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    fields.BorderSizePixel = 0
+    fields.Position = UDim2.new(0, 20, 0, 40)
+    fields.Size = UDim2.new(1, -40, 1, -70)
+
+    UICorner_2.Parent = fields
+
+    configname.Name = "configname"
+    configname.Parent = fields
+    configname.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    configname.BackgroundTransparency = 1.000
+    configname.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    configname.BorderSizePixel = 0
+    configname.Position = UDim2.new(0, 9, 0, 0)
+    configname.Size = UDim2.new(1, 0, 0, 50)
+
+    FieldName.Name = "FieldName"
+    FieldName.Parent = configname
+    FieldName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName.BackgroundTransparency = 1.000
+    FieldName.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    FieldName.BorderSizePixel = 0
+    FieldName.Position = UDim2.new(0, 14, 0, 0)
+    FieldName.Size = UDim2.new(0, 200, 0, 24)
+    FieldName.Font = Enum.Font.SourceSans
+    FieldName.Text = "Title"
+    FieldName.TextColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName.TextSize = 17.000
+    FieldName.TextXAlignment = Enum.TextXAlignment.Left
+
+    Value.Name = "Value"
+    Value.Parent = configname
+    Value.AnchorPoint = Vector2.new(0, 1)
+    Value.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Value.BorderSizePixel = 0
+    Value.Position = UDim2.new(0, 9, 1, 0)
+    Value.Size = UDim2.new(1, -18, 1, -20)
+    Value.Font = Enum.Font.SourceSans
+    Value.Text = ""
+    Value.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Value.TextSize = 14.000
+
+    UICorner_3.Parent = Value
+
+    UIListLayout.Parent = fields
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 7)
+
+    description.Name = "configname"
+    description.Parent = fields
+    description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    description.BackgroundTransparency = 1.000
+    description.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    description.BorderSizePixel = 0
+    description.Position = UDim2.new(0, 9, 0, 0)
+    description.Size = UDim2.new(1, 0, 0, 50)
+
+    Value_2.Name = "Value"
+    Value_2.Parent = description
+    Value_2.AnchorPoint = Vector2.new(0, 1)
+    Value_2.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    Value_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Value_2.BorderSizePixel = 0
+    Value_2.Position = UDim2.new(0, 9, 1, 0)
+    Value_2.Size = UDim2.new(1, -18, 1, -20)
+    Value_2.Font = Enum.Font.SourceSans
+    Value_2.Text = ""
+    Value_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Value_2.TextSize = 14.000
+
+    UICorner_4.Parent = Value_2
+
+    FieldName_2.Name = "FieldName"
+    FieldName_2.Parent = description
+    FieldName_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName_2.BackgroundTransparency = 1.000
+    FieldName_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    FieldName_2.BorderSizePixel = 0
+    FieldName_2.Position = UDim2.new(0, 14, 0, 0)
+    FieldName_2.Size = UDim2.new(0, 200, 0, 24)
+    FieldName_2.Font = Enum.Font.SourceSans
+    FieldName_2.Text = "Description"
+    FieldName_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName_2.TextSize = 17.000
+    FieldName_2.TextXAlignment = Enum.TextXAlignment.Left
+
+    anonymous.Name = "anonymous"
+    anonymous.Parent = fields
+    anonymous.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    anonymous.BackgroundTransparency = 1.000
+    anonymous.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    anonymous.BorderSizePixel = 0
+    anonymous.Position = UDim2.new(0, 9, 0, 0)
+    anonymous.Size = UDim2.new(1, 0, 0, 24)
+
+    FieldName_3.Name = "FieldName"
+    FieldName_3.Parent = anonymous
+    FieldName_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName_3.BackgroundTransparency = 1.000
+    FieldName_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    FieldName_3.BorderSizePixel = 0
+    FieldName_3.Position = UDim2.new(0, 14, 0, 0)
+    FieldName_3.Size = UDim2.new(0, 200, 0, 24)
+    FieldName_3.Font = Enum.Font.SourceSans
+    FieldName_3.Text = "Do not share username"
+    FieldName_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+    FieldName_3.TextSize = 17.000
+    FieldName_3.TextXAlignment = Enum.TextXAlignment.Left
+
+    Switch.Name = "Switch"
+    Switch.Parent = FieldName_3
+    Switch.AnchorPoint = Vector2.new(1, 0)
+    Switch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Switch.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Switch.BorderSizePixel = 0
+    Switch.Position = UDim2.new(1, 0, 0, 0)
+    Switch.Size = UDim2.new(0, 50, 0, 24)
+
+    UICorner_5.CornerRadius = UDim.new(1, 0)
+    UICorner_5.Parent = Switch
+
+    Circle.Name = "Circle"
+    Circle.Parent = Switch
+    Circle.AnchorPoint = Vector2.new(0, 0.5)
+    Circle.BackgroundColor3 = Color3.fromRGB(255, 84, 87)
+    Circle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Circle.BorderSizePixel = 0
+    Circle.Position = UDim2.new(0, 4, 0.5, 0)
+    Circle.Size = UDim2.new(0, 18, 0, 18)
+
+    UICorner_6.CornerRadius = UDim.new(1, 0)
+    UICorner_6.Parent = Circle
+
+    PublishButton.Name = "PublishButton"
+    PublishButton.Parent = Main
+    PublishButton.AnchorPoint = Vector2.new(1, 1)
+    PublishButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    PublishButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    PublishButton.BorderSizePixel = 0
+    PublishButton.Position = UDim2.new(1, -30, 1, -35)
+    PublishButton.Size = UDim2.new(0, 80, 0, 30)
+    PublishButton.Font = Enum.Font.Arial
+    PublishButton.Text = "✅ Publish"
+    PublishButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PublishButton.TextSize = 14.000
+
+    CancelButton.Name = "CancelButton"
+    CancelButton.Parent = Main
+    CancelButton.AnchorPoint = Vector2.new(1, 1)
+    CancelButton.BackgroundColor3 = Color3.fromRGB(176, 42, 44)
+    CancelButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    CancelButton.BorderSizePixel = 0
+    CancelButton.Position = UDim2.new(1, -120, 1, -35)
+    CancelButton.Size = UDim2.new(0, 80, 0, 30)
+    CancelButton.Font = Enum.Font.Arial
+    CancelButton.Text = "Exit"
+    CancelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CancelButton.TextSize = 14.000
+
+    local Request = (http and http.request) or http_request or (syn and syn.request)
+    local IsAnonymous = false
+    local function OnPublish(Settings)
+        if configname.Value.Text == "" then
+            return false, "Please enter a title"
+        end
+        if description.Value.Text == "" then
+            return false, "Please enter a description"
+        end
+        local Res = Request({
+            Url = "https://config-manager.chieokure.workers.dev/",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = httpService:JSONEncode({
+                anonymous = IsAnonymous, 
+                username = game:GetService("Players").LocalPlayer.Name,
+                name = configname.Value.Text,
+                cfg = {description = description.Value.Text, settings = Settings}
+            })
+        })
+        return Res.StatusCode == 201, Res.Body
+    end
+
+    CancelButton.MouseButton1Click:Connect(function()
+        Library:Toggle(true)
+        ScreenGui.Enabled = false
+    end)
+
+    local Click = Instance.new("TextButton")
+    Click.Parent = Switch
+    Click.BackgroundTransparency = 1
+    Click.Size = UDim2.fromScale(1, 1)
+    Click.Text = ""
+    Click.MouseButton1Click:Connect(function()
+        IsAnonymous = not IsAnonymous
+        if IsAnonymous then
+            Circle.BackgroundColor3 = Color3.fromRGB(103, 255, 80)
+            Circle.Position = UDim2.new(0, 26, 0.5, 0)
+        else
+            Circle.BackgroundColor3 = Color3.fromRGB(255, 84, 87)
+            Circle.Position = UDim2.new(0, 4, 0.5, 0)
+        end
+    end)
+
+    PublishButton.MouseButton1Click:Connect(function()
+        Fluent:Notify({
+            Title = "Publishing config",
+            Content = "This will only take a moment...",
+            Duration = 10
+        })
+        SaveManager:Save("_PUBLISHINGTEMPFILE_")
+        local Settings = readfile("VoidSaken/Forsaken/settings/Forsaken/_PUBLISHINGTEMPFILE_.json")
+        local Success, Result = OnPublish(Settings)
+        Fluent:Notify({
+            Title = Success and "Config Published" or "Config Publish Failed",
+            Content = Result,
+            Duration = 10
+        })
+    end)
+    getgenv().PublishUI = ScreenGui
+    dragify(Main, Main)
+end
+
+do
+	local FindConfigs = Instance.new("ScreenGui")
+	local Main = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+	local Title = Instance.new("TextLabel")
+	local List = Instance.new("ScrollingFrame")
+	local UIListLayout = Instance.new("UIListLayout")
+	local Stroke = Instance.new("UIStroke")
+    local CancelButton = Instance.new("TextButton")
+
+	FindConfigs.Parent = gethui and gethui() or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	FindConfigs.ResetOnSpawn = false
+	FindConfigs.Enabled = false
+
+	function OpenSearcher()
+		FindConfigs.Enabled = true
+	end
+
+    function CloseSearcher()
+		FindConfigs.Enabled = false
+	end
+
+	Main.Name = "Main"
+	Main.Parent = FindConfigs
+	Main.AnchorPoint = Vector2.new(0.5, 0.5)
+	Main.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+	Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Main.BorderSizePixel = 0
+	Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+	Main.Size = UDim2.new(0, 530, 0, 300)
+
+	Stroke.Parent = Main
+	Stroke.Thickness = 2
+	Stroke.Color = Color3.fromRGB(130, 170, 255)
+
+	UICorner.Parent = Main
+
+	Title.Name = "Title"
+	Title.Parent = Main
+	Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Title.BackgroundTransparency = 1.000
+	Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Title.BorderSizePixel = 0
+	Title.Position = UDim2.new(0, 14, 0, 6)
+	Title.Size = UDim2.new(0, 200, 0, 24)
+	Title.Font = Enum.Font.SourceSansBold
+	Title.Text = "Find public available settings created by voidsaken users"
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.TextSize = 17.000
+	Title.TextXAlignment = Enum.TextXAlignment.Left
+
+	List.Name = "List"
+	List.Parent = Main
+	List.Active = true
+	List.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	List.BackgroundTransparency = 1.000
+	List.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	List.BorderSizePixel = 0
+	List.Position = UDim2.new(0, 10, 0, 30)
+	List.Size = UDim2.new(1, -20, 1, -100)
+    List.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    List.ScrollingDirection = Enum.ScrollingDirection.Y
+    List.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+	UIListLayout.Parent = List
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.Padding = UDim.new(0, 5)
+
+    CancelButton.Name = "CancelButton"
+    CancelButton.Parent = Main
+    CancelButton.AnchorPoint = Vector2.new(1, 1)
+    CancelButton.BackgroundColor3 = Color3.fromRGB(176, 42, 44)
+    CancelButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    CancelButton.BorderSizePixel = 0
+    CancelButton.Position = UDim2.new(1, -35, 1, -35)
+    CancelButton.Size = UDim2.new(0, 80, 0, 30)
+    CancelButton.Font = Enum.Font.Arial
+    CancelButton.Text = "Exit"
+    CancelButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CancelButton.TextSize = 14.000
+
+    CancelButton.MouseButton1Click:Connect(function()
+        Library:Toggle(true)
+        FindConfigs.Enabled = false
+    end)
+
+    function Reset()
+        for i, v in pairs(List:GetChildren()) do
+            if v:IsA("Frame") then
+                v:Destroy()
+            end
+        end
+    end
+
+	function Make(Name, _Description, Settings)
+		local Frame = Instance.new("Frame")
+		local Title_2 = Instance.new("TextLabel")
+		local Description = Instance.new("TextLabel")
+		local TextButton = Instance.new("TextButton")
+		
+		Frame.Parent = List
+		Frame.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
+		Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Frame.BorderSizePixel = 0
+		Frame.Size = UDim2.new(1, -30, 0, 77)
+
+		Title_2.Name = "Title"
+		Title_2.Parent = Frame
+		Title_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Title_2.BackgroundTransparency = 1.000
+		Title_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Title_2.BorderSizePixel = 0
+		Title_2.Position = UDim2.new(0, 7, 0, 0)
+		Title_2.Size = UDim2.new(1, 0, 0, 20)
+		Title_2.Font = Enum.Font.ArialBold
+		Title_2.Text = Name
+		Title_2.TextColor3 = Color3.fromRGB(209, 209, 209)
+		Title_2.TextSize = 14.000
+		Title_2.TextXAlignment = Enum.TextXAlignment.Left
+
+		Description.Name = "Description"
+		Description.Parent = Frame
+		Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		Description.BackgroundTransparency = 1.000
+		Description.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Description.BorderSizePixel = 0
+		Description.Position = UDim2.new(0, 7, 0, 15)
+		Description.Size = UDim2.new(1, -14, 0, 30)
+		Description.Font = Enum.Font.Arial
+		Description.Text = _Description
+		Description.TextColor3 = Color3.fromRGB(130, 170, 255)
+		Description.TextSize = 14.000
+		Description.TextWrapped = true
+		Description.TextXAlignment = Enum.TextXAlignment.Left
+		Description.TextYAlignment = Enum.TextYAlignment.Top
+
+		TextButton.Parent = Frame
+		TextButton.AnchorPoint = Vector2.new(0, 1)
+		TextButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+		TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		TextButton.BorderSizePixel = 0
+		TextButton.Position = UDim2.new(0, 6, 1, -6)
+		TextButton.Size = UDim2.new(0, 60, 0, 20)
+		TextButton.Font = Enum.Font.SourceSansBold
+		TextButton.Text = "Load"
+		TextButton.TextColor3 = Color3.fromRGB(255, 188, 73)
+		TextButton.TextSize = 14.000
+		
+		TextButton.MouseButton1Click:Connect(function()
+			writefile("VoidSaken/Forsaken/settings/Forsaken/_SAVINGTEMPFILE_.json", Settings)
+            print(SaveManager:Load("_SAVINGTEMPFILE_"))
+		end)
+	end
+    dragify(Main, Main)
+    getgenv().SearchUI = FindConfigs
+end
+
+local function GrabConfigs()
+    local Data = httpService:JSONDecode(game:HttpGet("https://config-manager.chieokure.workers.dev/"))
+    local Configs = {}
+    for i, v in pairs(Data) do
+        local ConfigData = httpService:JSONDecode(v.config_data)
+        local Json = {
+            Name = v.name,
+            Description = ConfigData.description,
+            Settings = ConfigData.settings
+        }
+        Configs[i] = Json 
+    end
+    return Configs
+end
+
+local SearchConfigs = Community:AddLeftGroupbox("Find", "search")
+local MakeConfigs = Community:AddRightGroupbox("Create", "hammer")
+SearchConfigs:AddButton({
+    Text = "Find Community-Made Settings",
+    Func = function()
+        Library:Toggle(false)
+        ClosePublisher()
+        OpenSearcher()
+        Reset()
+        local Configs = GrabConfigs()
+        for ID, Data in pairs(Configs) do
+            Make(Data.Name, Data.Description, Data.Settings)
+        end
+    end
+})
+
+MakeConfigs:AddButton({
+    Text = "Open Config Creator",
+    Func = function()
+        Library:Toggle(false)
+        CloseSearcher()
+        OpenPublisher()
+    end
+})
+
 local A = Discord:AddLeftGroupbox("Discord", "external-link")
 A:AddButton({
     Text = "Copy Discord",
     Func = function()
-        setclipboard("https://discord.gg/fdBZygQthm")
-        Notify("Copied", "Discord invite copied! please join", 9)
+        
     end
 })
 local B = Discord:AddRightGroupbox("Quick Actions", "shield")
@@ -2806,7 +3341,8 @@ pcall(function()
 
     Library:OnUnload(function()
         _G.VoidsakenExecuted = false
-        panic()
+        getgenv().PublishUI:Destroy()
+        getgenv().SearchUI:Destroy()
         getgenv().FlipUI:Destroy()
         getgenv().AimbotUI:Destroy()
         getgenv().BlockUI:Destroy()
@@ -3213,43 +3749,6 @@ function FortniteFlips()
         task.wait(0.25)
         FlipCooldown = false
     end)
-end
-
-local UIS = game:GetService("UserInputService")
-local function dragify(Frame, DragInp)
-	local dragToggle = nil
-	local dragInput = nil
-	local dragStart = nil
-	local Delta
-	local Position
-	local startPos
-	local function updateInput(input)
-		Delta = input.Position - dragStart
-		Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
-		Frame.Position = Position
-	end
-	DragInp.InputBegan:Connect(function(input)
-		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and UIS:GetFocusedTextBox() == nil then
-			dragToggle = true
-			dragStart = input.Position
-			startPos = Frame.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragToggle = false
-				end
-			end)
-		end
-	end)
-	DragInp.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
-		end
-	end)
-	UIS.InputChanged:Connect(function(input)
-		if input == dragInput and dragToggle then
-			updateInput(input)
-		end
-	end)
 end
 
 local Flip = Instance.new("ScreenGui")
