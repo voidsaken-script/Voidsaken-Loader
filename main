@@ -1,6 +1,7 @@
 -- LICENSE : https://github.com/voidsaken-script/Voidsaken-Loader/blob/main/LICENSE
 -- ^ Read before you decide to paste
 
+_G.VoidsakenExecuted = false
 if _G.VoidsakenExecuted then
     return _Fluent:Notify({
         Title = "Voidsaken",
@@ -11,14 +12,17 @@ end
 _G.VoidsakenExecuted = true
 
 local ScriptAssets = {
-    Icon = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/unnamed.png",
-    Flip = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/chrome_qL5NK7hyT8.png",
-    Mouse = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/mouse.png",
-    Move = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/move.png",
-    Block = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/MuMuNxDevice_MAUxUHUyFK.png",
-    Trapped = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/4201973.png"
-
+    Icon = "BA_Icon.png",
+    Flip = "FrontFlip.png",
+    Mouse = "Mouse.png",
+    Move = "Move.png",
+    Block = "Block.png",
+    Trapped = "TrappedGenerator.png"
 }
+
+for i, v in pairs(ScriptAssets) do
+    ScriptAssets[i] = "https://github.com/voidsaken-script/Voidsaken-Loader/raw/refs/heads/main/assets/" .. ScriptAssets[i]
+end
 if not isfile("iadapted_d4af689ed2bc5a4e80115a09705f585c") then
     if isfolder("VoidSaken") then
         delfolder("VoidSaken")
@@ -739,6 +743,9 @@ GeneratorsGroup:AddToggle("AutoCompleteGenerator", {
                                         activelyAutoing = true
 
                                         for i = 1, 4 do
+                                            if Options.GeneratorDelay1.Value ~= 1.4 and Options.GeneratorDelay2.Value ~= 1.4 then
+                                                generatorWait()
+                                            end
                                             if v.Progress.Value >= 100 then break end
                                             v.Remotes.RE:FireServer()
                                             setthreadidentity(8)
