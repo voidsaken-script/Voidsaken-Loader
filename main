@@ -195,7 +195,7 @@ local function trackAnimations(char)
 
     animator.AnimationPlayed:Connect(function(track)
         if not table.find(autoBlockAnimations, track.Animation.AnimationId) then
-            --print("animation:", track.Animation.AnimationId)
+            print("animation:", track.Animation.AnimationId)
         end
         if hasAbilityReady("Block") and isSurvivor and autoBlockVar and table.find(autoBlockAnimations, track.Animation.AnimationId) then
             if killerModel then
@@ -240,7 +240,7 @@ Options = Library.Options
 Toggles = Library.Toggles
 
 Window = Library:CreateWindow({
-    Title = "🎄Voidsaken V1.25",
+    Title = "🎄Voidsaken V1.3",
     Footer = "discord.gg/fdBZygQthm [MERRY CHRISTMAS]",
     Icon = IconImage,
     NotifySide = "Right",
@@ -287,6 +287,10 @@ local SurvivorsLeftText = C:AddLabel({
     Text = "Survivors Left: <b>N/A</b>",
     DoesWrap = true
 })
+local GeneratorsLeftText = C:AddLabel({
+    Text = "Generators: <b>0</b>/<b>5</b>",
+    DoesWrap = true
+})
 local KillerText = C:AddLabel({
     Text = "Killer: <b>N/A</b> (@%s)",
     DoesWrap = true
@@ -313,8 +317,20 @@ task.spawn(function()
     end
 end)
 task.spawn(function()
+    local GeneratorData = {{}, {}}
     while true do
+        if gameMap:FindFirstChild("Ingame") and gameMap.Ingame:FindFirstChild("Map") then
+            for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
+                if v.Name == "Generator" then
+                    table.insert(GeneratorData[1], v.Progress.Value >= 100 or nil)
+                    table.insert(GeneratorData[2], 0)
+                end
+            end
+        end
         SurvivorsLeftText:SetText(string.format("Survivors Left: <b>%d</b>", #workspace.Players.Survivors:GetChildren()))
+        GeneratorsLeftText:SetText(string.format("Generators: <b>%d</b>/<b>%d</b>", #GeneratorData[1], #GeneratorData[2]))
+        table.clear(GeneratorData[1])
+        table.clear(GeneratorData[2])
         task.wait(0.3)
     end
 end)
@@ -367,6 +383,26 @@ task.spawn(function()
         PingText:SetText(string.format("Ping: <b><font color=\"rgb(%s)\">%d</font></b>ms", PingColor, Ping))
         FramesText:SetText(string.format("FPS: <b><font color=\"rgb(%s)\">%d</font></b>/s", FpsColor, FPS))
         task.wait(1)
+    end
+end)
+local E = Discord:AddRightGroupbox("Event", "cookie")
+E:AddToggle("GingerbreadFarm", {
+    Text = "Gingerbread/Candy Farm",
+})
+local activelyAutoing = false
+task.spawn(function()
+    while true do
+        pcall(function()
+            if not Toggles.GingerbreadFarm.Value then return end
+            if activelyAutoing then return end
+            if playingState ~= "Playing" then return end
+            for i, v in pairs(gameMap.Ingame.CurrencyLocations:GetChildren()) do
+                if v:IsA("Model") then
+                    localPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChildWhichIsA("Part").CFrame
+                end
+            end
+        end)
+        task.wait(0.1)
     end
 end)
 
@@ -660,8 +696,6 @@ task.spawn(function()
 end)
 
 local generatorsDid = {}
-local activelyAutoing = false
-
 GeneratorsGroup:AddToggle("AutoCompleteGenerator", {
     Text = "Auto Complete Generator",
     Default = false,
@@ -798,6 +832,7 @@ GeneratorsGroup:AddButton({
 
 local function completeGenerators()
     if activelyAutoing then return end
+    activelyAutoing = true
     pcall(function()
         if not (gameMap and gameMap.Ingame and gameMap.Ingame.Map) then return end
 
@@ -836,7 +871,6 @@ local function completeGenerators()
 
                     task.wait(0.2)
                     
-
                     local result = v.Remotes.RF:InvokeServer("Enter")
                     if result ~= "fixing" then
                         return
@@ -854,6 +888,7 @@ local function completeGenerators()
             end
         end
     end)
+    activelyAutoing = false
 end
 
 GeneratorsGroup:AddButton({
@@ -870,9 +905,6 @@ GeneratorsGroup:AddToggle("AutoAllGenerators", {
     Text = "Auto All Generators",
     Tooltip = "Automatically complete all generators when the round starts",
     Default = false,
-    Callback = function()
-
-    end
 })
 
 GeneratorsGroup:AddSlider("GeneratorDelay1", {
@@ -1152,9 +1184,7 @@ SilentAimGroup:AddToggle("HackerSilentAim", {
     Text = "1x1x1x1",
     UseLegacyToggle = true
 })
---[[SilentAimGroup:AddToggle("Guest666Aimbot", {
-    Text = "Guest666 Aimbot",
-})]]
+
 local isDusekkar = false
 local isCoolkid = false
 local isNoli = false
@@ -1162,18 +1192,20 @@ local suc, res = pcall(function()
     local old; old = hookmetamethod(game, "__namecall", function(self, ...)
         if typeof(self) == "Instance" and tostring(self) == "RemoteEvent" then
             local arg = ({...})[2]
-            if type(arg) == "table" and typeof(arg[1]) == "buffer" and buffer.tostring(arg[1]) == "\"PlasmaBeam\"" then
-                isDusekkar = true
-                task.spawn(function()
-                    task.wait(3)
-                    isDusekkar = false
-                end)
-            elseif type(arg) == "table" and typeof(arg[1]) == "buffer" and buffer.tostring(arg[1]) == "\"Nova\"" then
-                isNoli = true
-                task.spawn(function()
-                    task.wait(3)
-                    isNoli = false
-                end)
+            if type(arg) == "table" and typeof(arg[1]) == "buffer" then
+                if buffer.tostring(arg[1]) == "\"PlasmaBeam\"" then
+                    isDusekkar = true
+                    task.spawn(function()
+                        task.wait(3)
+                        isDusekkar = false
+                    end)
+                elseif buffer.tostring(arg[1]) == "\"Nova\"" then
+                    isNoli = true
+                    task.spawn(function()
+                        task.wait(3)
+                        isNoli = false
+                    end)
+                end
             end
         end
         return old(self, ...)
@@ -1215,7 +1247,6 @@ Network.RemoteEvent.OnClientEvent:Connect(function(...)
                     local Survivor = getClosestSurvivor()
                     local start = tick()
                     while tick() - start < 3 and task.wait() do
-                        warn("b")
                         assist(Survivor, 0)
                     end
                 end)
@@ -2966,7 +2997,7 @@ EmoteGroup:AddButton({
     Text = "Fake Emote",
     Func = function()
         pcall(function()
-            lastTrack:Cancel()
+            lastTrack:Stop()
         end)
         local id
         for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
@@ -2981,6 +3012,14 @@ EmoteGroup:AddButton({
         local track = humanoid:LoadAnimation(anim)
         lastTrack = track
         track:Play()
+    end
+});
+EmoteGroup:AddButton({
+    Text = "Stop Fake Emote",
+    Func = function()
+        pcall(function()
+            lastTrack:Stop()
+        end)
     end
 });
 
