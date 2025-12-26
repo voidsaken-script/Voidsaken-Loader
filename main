@@ -425,21 +425,23 @@ local Tabs = {
 task.spawn(function()
     while task.wait() do
         local _isKiller = false
+        local _killerModel = nil
 
         if workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers") then
             for _, v in pairs(workspace.Players.Killers:GetChildren()) do
                 if v:GetAttribute("Username") and game.Players:FindFirstChild(v:GetAttribute("Username")) then
-                    killerModel = v
+                    _killerModel = v
                 end
 
                 if v:GetAttribute("Username") == localPlayer.Name then
-                    killerModel = v
+                    _killerModel = v
                     _isKiller = true
                 end
             end
 
             isSurvivor = not _isKiller
         end
+        killerModel = _killerModel
         isKiller = _isKiller
     end
 end)
