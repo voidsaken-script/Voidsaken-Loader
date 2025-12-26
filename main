@@ -116,7 +116,7 @@ local AttackAnimations = {
     "rbxassetid://74707328554358", "rbxassetid://133336594357903", "rbxassetid://86204001129974",
     "rbxassetid://124243639579224", "rbxassetid://70371667919898", "rbxassetid://131543461321709",
     "rbxassetid://136323728355613", "rbxassetid://109230267448394", "rbxassetid://122709416391891",
-    "rbxassetid://121808371053483", "rbxassetid://106538427162796"
+    "rbxassetid://121808371053483", "rbxassetid://106538427162796", "rbxassetid://88451353906104"
 }
 
 local function debugCall(suc, res)
@@ -342,6 +342,8 @@ task.spawn(function()
         if canDoRequire then
             if killerModel and game.Players:FindFirstChild(killerModel:GetAttribute("Username")) then
                 KillerText:SetText(string.format("Killer: <b>%s</b> (<b>@%s</b>)", require(replicatedStorage.Assets.Killers[killerModel.Name].Config).DisplayName, game.Players[killerModel:GetAttribute("Username")].DisplayName))
+            else
+                KillerText:SetText("Killer: <b>Nobody</b>")
             end
         else
             KillerText:SetText("Your executor does not support this")
@@ -2289,6 +2291,32 @@ SurvivorsGroup:AddToggle("SkateControl", {
     end
 })
 
+SurvivorsGroup:AddToggle("AutoEscape", { 
+    Text = "Auto Escape Blood Hook",
+    Callback = function()
+        task.spawn(function()
+            local function NeedToEscape()
+                local UI = localPlayer.PlayerGui.TemporaryUI:FindFirstChild("QTE")
+                return UI ~= nil
+            end
+            local MagicVar = false
+            while Toggles.AutoEscape.Value and task.wait() do
+                if NeedToEscape() then
+                    actor:FireServer(killerModel:GetAttribute("Username") .. "NosHookQTE", {buffer.fromstring("true")})
+                    if not MagicVar then
+                        task.spawn(function()
+                            MagicVar = true
+                            repeat task.wait() until not NeedToEscape()
+                            Notify("Blood Hook", "Successfully escaped", 5)
+                            MagicVar = false
+                        end)
+                    end
+                end
+            end
+        end)
+    end
+})
+
 KillerMisc:AddToggle("FrontFlip", { 
     Text = "Front Flip",
     Default = false,
@@ -2966,7 +2994,6 @@ local EmoteGroup = Tabs.Misc:AddRightGroupbox("Emotes", "party-popper")
 local emoteName = "Hakari Dance"
 if canDoRequire then
     local emoteTable = {}
-
     for _, v in pairs(game:GetService("ReplicatedStorage").Assets.Emotes:GetChildren()) do
         table.insert(emoteTable, require(v).DisplayName)
     end
