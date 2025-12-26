@@ -338,7 +338,7 @@ task.spawn(function()
     while true do
         if canDoRequire then
             if killerModel then
-                KillerText:SetText(string.format("Killer: <b>%s</b> (<b>@%s</b>)", require(replicatedStorage.Assets.Killers.Sixer.Config).DisplayName, game.Players[killerModel:GetAttribute("Username")].DisplayName))
+                KillerText:SetText(string.format("Killer: <b>%s</b> (<b>@%s</b>)", require(replicatedStorage.Assets.Killers[killerModel.Name].Config).DisplayName, game.Players[killerModel:GetAttribute("Username")].DisplayName))
             end
         else
             KillerText:SetText("Your executor does not support this")
