@@ -337,7 +337,7 @@ end)
 task.spawn(function()
     while true do
         if canDoRequire then
-            if killerModel then
+            if killerModel and game.Players:FindFirstChild(killerModel:GetAttribute("Username")) then
                 KillerText:SetText(string.format("Killer: <b>%s</b> (<b>@%s</b>)", require(replicatedStorage.Assets.Killers[killerModel.Name].Config).DisplayName, game.Players[killerModel:GetAttribute("Username")].DisplayName))
             end
         else
