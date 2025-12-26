@@ -266,6 +266,7 @@ B:AddButton({
         end
         delfile("voidsaken_button_positions.json")
         Notify("Reset", "The position of UI Buttons have been reset", 9)
+        loadpositions()
     end
 })
 B:AddButton({
@@ -838,7 +839,7 @@ local function completeGenerators()
 
         for _, v in pairs(gameMap.Ingame.Map:GetChildren()) do
             if v.Name == "Generator" then
-                pcall(function()
+                print(pcall(function()
                     if v.Progress.Value >= 100 then return end
 
                     local function checkOccupance(pos)
@@ -878,13 +879,12 @@ local function completeGenerators()
 
                     for j = 1, 4 do
                         if v.Progress.Value >= 100 then break end
-                        if activelyAutoing then return end
                         setthreadidentity(8)
                         Notify("Generator Step", "Finished puzzle " .. tostring(j), 4)
                         v.Remotes.RE:FireServer()
                         generatorWait()
                     end
-                end)
+                end))
             end
         end
     end)
@@ -3371,7 +3371,7 @@ end
 if not isfile("voidsaken_button_positions.json") then
     writefile("voidsaken_button_positions.json", jsonpositions())
 end
-local function loadpositions()
+function loadpositions()
     local positions = httpservice:JSONDecode(readfile("voidsaken_button_positions.json"))
     for i, v in pairs(positions) do
         local ui = getgenv()[i].Frame
