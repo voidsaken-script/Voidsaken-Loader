@@ -3010,12 +3010,14 @@ local MovementModule = require(replicatedStorage.Systems.Character.QualityOfLife
 KillerMisc:AddToggle("RemoveDirectionalMovement", { 
     Text = "No Directional Walking",
     Callback = function(callback)
+        if not callback then
+            if playingState == "Playing" then
+                MovementModule:Start()
+            end
+        end
         task.spawn(function()
             while Toggles.RemoveDirectionalMovement.Value and task.wait() do
                 MovementModule:Destroy()
-            end
-            if playingState == "Playing" then
-                MovementModule:Start()
             end
         end)
     end
