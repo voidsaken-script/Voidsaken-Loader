@@ -325,6 +325,57 @@ local translations = {
         ["th-th"] = "ค้นหาการตั้งค่าสาธารณะที่สร้างโดยผู้ใช้ voidsaken",
         ["tr-tr"] = "voidsaken kullanıcıları tarafından oluşturulan herkese açık ayarları bul",
         ["vi-vn"] = "Tìm các cài đặt công khai được tạo bởi người dùng voidsaken"
+    },
+    {
+        ["en-us"] = "Title",
+        ["zh-cn"] = "标题",
+        ["zh-tw"] = "標題",
+        ["fr-fr"] = "Titre",
+        ["de-de"] = "Titel",
+        ["id-id"] = "Judul",
+        ["it-it"] = "Titolo",
+        ["ja-jp"] = "タイトル",
+        ["ko-kr"] = "제목",
+        ["pl-pl"] = "Tytuł",
+        ["ru-ru"] = "Заголовок",
+        ["es-es"] = "Título",
+        ["th-th"] = "หัวข้อ",
+        ["tr-tr"] = "Başlık",
+        ["vi-vn"] = "Tiêu đề"
+    },
+    {
+        ["en-us"] = "Description",
+        ["zh-cn"] = "描述",
+        ["zh-tw"] = "描述",
+        ["fr-fr"] = "Description",
+        ["de-de"] = "Beschreibung",
+        ["id-id"] = "Deskripsi",
+        ["it-it"] = "Descrizione",
+        ["ja-jp"] = "説明",
+        ["ko-kr"] = "설명",
+        ["pl-pl"] = "Opis",
+        ["ru-ru"] = "Описание",
+        ["es-es"] = "Descripción",
+        ["th-th"] = "คำอธิบาย",
+        ["tr-tr"] = "Açıklama",
+        ["vi-vn"] = "Mô tả"
+    },
+    {
+        ["en-us"] = "Do not share my username",
+        ["zh-cn"] = "不要分享 my 用户名",
+        ["zh-tw"] = "不要分享我的用戶名稱",
+        ["fr-fr"] = "Ne pas partager mon nom d'utilisateur",
+        ["de-de"] = "Meinen Benutzernamen nicht teilen",
+        ["id-id"] = "Jangan bagikan nama pengguna saya",
+        ["it-it"] = "Non condividere il mio nome utente",
+        ["ja-jp"] = "ユーザー名を共有しない",
+        ["ko-kr"] = "사용자 이름 공유 안 함",
+        ["pl-pl"] = "Nie udostępniaj mojej nazwy użytkownika",
+        ["ru-ru"] = "Не делиться моим именем пользователя",
+        ["es-es"] = "No compartir mi nombre de usuario",
+        ["th-th"] = "ไม่ต้องแชร์ชื่อผู้ใช้ของฉัน",
+        ["tr-tr"] = "Kullanıcı adımı paylaşma",
+        ["vi-vn"] = "Không chia sẻ tên người dùng của tôi"
     }
 }
 do
@@ -422,7 +473,7 @@ do
     FieldName.Position = UDim2.new(0, 14, 0, 0)
     FieldName.Size = UDim2.new(0, 200, 0, 24)
     FieldName.Font = Enum.Font.SourceSans
-    FieldName.Text = "Title"
+    FieldName.Text = translations[3][localPlayer.LocaleId] or "Title"
     FieldName.TextColor3 = Color3.fromRGB(255, 255, 255)
     FieldName.TextSize = 17.000
     FieldName.TextXAlignment = Enum.TextXAlignment.Left
@@ -479,7 +530,7 @@ do
     FieldName_2.Position = UDim2.new(0, 14, 0, 0)
     FieldName_2.Size = UDim2.new(0, 200, 0, 24)
     FieldName_2.Font = Enum.Font.SourceSans
-    FieldName_2.Text = "Description"
+    FieldName_2.Text = translations[4][localPlayer.LocaleId] or "Description"
     FieldName_2.TextColor3 = Color3.fromRGB(255, 255, 255)
     FieldName_2.TextSize = 17.000
     FieldName_2.TextXAlignment = Enum.TextXAlignment.Left
@@ -500,12 +551,13 @@ do
     FieldName_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
     FieldName_3.BorderSizePixel = 0
     FieldName_3.Position = UDim2.new(0, 14, 0, 0)
-    FieldName_3.Size = UDim2.new(0, 200, 0, 24)
+    FieldName_3.Size = UDim2.new(0, 0, 0, 24)
     FieldName_3.Font = Enum.Font.SourceSans
-    FieldName_3.Text = "Do not share username"
+    FieldName_3.Text = translations[5][localPlayer.LocaleId] or "Do not share my username"
     FieldName_3.TextColor3 = Color3.fromRGB(255, 255, 255)
     FieldName_3.TextSize = 17.000
     FieldName_3.TextXAlignment = Enum.TextXAlignment.Left
+    FieldName_3.AutomaticSize = Enum.AutomaticSize.X
 
     Switch.Name = "Switch"
     Switch.Parent = FieldName_3
@@ -513,7 +565,7 @@ do
     Switch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     Switch.BorderColor3 = Color3.fromRGB(0, 0, 0)
     Switch.BorderSizePixel = 0
-    Switch.Position = UDim2.new(1, 0, 0, 0)
+    Switch.Position = UDim2.new(1, 60, 0, 0)
     Switch.Size = UDim2.new(0, 50, 0, 24)
 
     UICorner_5.CornerRadius = UDim.new(1, 0)
