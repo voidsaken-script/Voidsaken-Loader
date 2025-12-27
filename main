@@ -573,10 +573,8 @@ do
                 ["Content-Type"] = "application/json"
             },
             Body = httpService:JSONEncode({
-                anonymous = IsAnonymous, 
-                username = game:GetService("Players").LocalPlayer.Name,
                 name = configname.Value.Text,
-                cfg = {description = description.Value.Text, settings = Settings}
+                cfg = {anonymous = IsAnonymous, username = game:GetService("Players").LocalPlayer.Name, description = description.Value.Text, settings = Settings}
             })
         })
         return Res.StatusCode == 201, Res.Body
@@ -787,7 +785,8 @@ local function GrabConfigs()
         local Json = {
             Name = v.name,
             Description = ConfigData.description,
-            Settings = ConfigData.settings
+            Settings = ConfigData.settings,
+            Creator = ConfigData.anonymous and "[Anonymous]" or ((ConfigData.username and ("@" .. ConfigData.username)) or "[Anonymous]")
         }
         Configs[i] = Json 
     end
@@ -805,7 +804,7 @@ SearchConfigs:AddButton({
         Reset()
         local Configs = GrabConfigs()
         for ID, Data in pairs(Configs) do
-            Make(Data.Name, Data.Description, Data.Settings)
+            Make(string.format("\"%s\" by %s", Data.Name, Data.Creator), Data.Description, Data.Settings)
         end
     end
 })
