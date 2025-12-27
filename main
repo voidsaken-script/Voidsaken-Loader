@@ -1037,7 +1037,7 @@ task.spawn(function()
     end
 end)
 task.spawn(function()
-    while true do
+    while task.wait(0.1) do
         pcall(function()
             if not Toggles.GingerbreadESP.Value then return end
             for i, v in pairs(gameMap.Ingame.CurrencyLocations:GetChildren()) do
@@ -1053,7 +1053,6 @@ task.spawn(function()
                 end
             end
         end)
-        task.wait(0.1)
     end
 end)
 
@@ -3005,6 +3004,21 @@ KillerMisc:AddToggle("FakeBlock", {
         if not Toggles.FakeBlock.Value then return end
 		FakeBlock()
 	end,
+})
+
+local MovementModule = require(replicatedStorage.Systems.Character.QualityOfLife.DirectionalMovement)
+KillerMisc:AddToggle("RemoveDirectionalMovement", { 
+    Text = "No Directional Walking",
+    Callback = function(callback)
+        task.spawn(function()
+            while Toggles.RemoveDirectionalMovement.Value and task.wait() do
+                MovementModule:Destroy()
+            end
+            if playingState == "Playing" then
+                MovementModule:Start()
+            end
+        end)
+    end
 })
 
 -- NOT MADE BY ME, BUT FIXED BY ME
