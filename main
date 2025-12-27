@@ -769,6 +769,7 @@ do
 		TextButton.TextSize = 14.000
 		
 		TextButton.MouseButton1Click:Connect(function()
+            panic()
 			writefile("VoidSaken/Forsaken/settings/Forsaken/_SAVINGTEMPFILE_.json", Settings)
             print(SaveManager:Load("_SAVINGTEMPFILE_"))
 		end)
@@ -960,7 +961,13 @@ task.spawn(function()
 end)
 local E = Discord:AddRightGroupbox("Event", "cookie")
 E:AddToggle("GingerbreadFarm", {
-    Text = "Gingerbread/Candy Farm",
+    Text = "Gingerbread Farm",
+})
+E:AddToggle("GingerbreadESP", {
+    Text = "Gingerbread ESP",
+}):AddColorPicker("GingerbreadESPColor", {
+    Default = Color3.fromRGB(255, 50, 204),
+    Title = "Gingerbread Color",
 })
 local activelyAutoing = false
 task.spawn(function()
@@ -972,6 +979,26 @@ task.spawn(function()
             for i, v in pairs(gameMap.Ingame.CurrencyLocations:GetChildren()) do
                 if v:IsA("Model") and v:FindFirstChildWhichIsA("Part").Position.Y > -200 then
                     localPlayer.Character.HumanoidRootPart.CFrame = v:FindFirstChildWhichIsA("Part").CFrame
+                end
+            end
+        end)
+        task.wait(0.1)
+    end
+end)
+task.spawn(function()
+    while true do
+        pcall(function()
+            if not Toggles.GingerbreadESP.Value then return end
+            for i, v in pairs(gameMap.Ingame.CurrencyLocations:GetChildren()) do
+                if v:IsA("Model") and v:FindFirstChildWhichIsA("Part").Position.Y > -200 then
+                    if not v:FindFirstChild("gingerbread_esp") then
+                        local hl = Instance.new("Highlight", v)
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        hl.Name = "gingerbread_esp"
+                    else
+                        v.gingerbread_esp.FillColor = Options.GingerbreadESPColor.Value
+                        v.gingerbread_esp.OutlineTransparency = 1
+                    end
                 end
             end
         end)
