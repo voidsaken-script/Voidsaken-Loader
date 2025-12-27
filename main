@@ -889,7 +889,7 @@ B:AddButton({
             return Notify("Reset", "The UI button positions have not been saved yet and the file does not exist", 9)
         end
         delfile("voidsaken_button_positions.json")
-        Notify("Reset", "The position of UI Buttons have been reset. Re-execute to apply", 9)
+        Notify("Reset", "The position of UI Buttons have been reset", 9)
     end
 })
 B:AddButton({
@@ -1023,7 +1023,7 @@ E:AddToggle("GingerbreadESP", {
 })
 local activelyAutoing = false
 task.spawn(function()
-    while true do
+    while task.wait(0.1) do
         pcall(function()
             if not Toggles.GingerbreadFarm.Value then return end
             if activelyAutoing then return end
@@ -1034,7 +1034,6 @@ task.spawn(function()
                 end
             end
         end)
-        task.wait(0.1)
     end
 end)
 task.spawn(function()
